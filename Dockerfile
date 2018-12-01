@@ -12,7 +12,8 @@ FROM alpine:latest
 RUN apk --no-cache add ca-certificates && \
     mkdir -p /work 
 WORKDIR /work
-ADD ./static .
-COPY --from=0 /go/src/github.com/ajarv/go-web-redis/ .
+COPY --from=0 /go/src/github.com/ajarv/go-web-redis/main .
+ADD ./static /work/static
+ADD ./templates /work/templates
 USER 1012
 CMD ["./main"]  

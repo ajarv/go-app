@@ -9,9 +9,9 @@ import (
 	"net/http/httputil"
 	"os"
 	"time"
-
 	"github.com/go-redis/redis"
 	"github.com/gorilla/mux"
+	"html/template"
 )
 
 const appVersion = "3.0.0"
@@ -62,10 +62,20 @@ func killHandler(w http.ResponseWriter, r *http.Request) {
 		os.Exit(3)
 	}()
 }
+
+type RedisPageData struct {
+	PageTitle string
+	Count int64
+	Error error
+	DebugString string
+}
+
+var tmpl = template.Must(template.ParseFiles("templates/layout.html"))
+
 func redishandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r)
 
-	w.Write([]byte(getDebugResponseString(r)))
+	// w.Write([]byte(getDebugResponseString(r)))
 
 	redisdb := redis.NewClient(&redis.Options{
 		Addr:        redisHost + ":" + redisPort,
@@ -73,13 +83,22 @@ func redishandler(w http.ResponseWriter, r *http.Request) {
 		DB:          0,  // use default DB
 		DialTimeout: time.Second * 5,
 	})
-
+	
 	result, err := redisdb.Incr("hits.go").Result()
-	if err != nil {
-		fmt.Fprintf(w, "Redis Error: %v\n", err)
-	} else {
-		fmt.Fprintf(w, "(redis) Hit Count : %v\n", result)
+	data := RedisPageData {
+		PageTitle : "Redis Page",
+		Count: result,
+		Error: err,
+		DebugString:  getDebugResponseString(r),
 	}
+	w.Header().Set("Content-Type", "text/html")
+	tmpl.Execute(w, data)
+
+	// if err != nil {
+	// 	fmt.Fprintf(w, "Redis Error: %v\n", err)
+	// } else {
+	// 	fmt.Fprintf(w, "(redis) Hit Count : %v\n", result)
+	// }
 }
 
 var redisHost = getEnv("REDIS_SERVICE_HOST", "localhost")
@@ -113,7 +132,7 @@ func main() {
 		ReadTimeout:  15 * time.Second,
 	}
 
-	fmt.Fprintf(os.Stdout, "Web Server started. Listening on %s:%s\n", host, port)
+	fmt.Fprintf(os.Stdout, "Server listening %s:%s\n", host, port)
 
 	log.Fatal(srv.ListenAndServe())
 }
