@@ -48,15 +48,6 @@
           type: "Recreate"
         triggers: 
           - 
-            type: "ImageChange"
-            imageChangeParams: 
-              automatic: true
-              containerNames: 
-                - "go-web"
-              from: 
-                kind: "ImageStreamTag"
-                name: "go-web:latest"
-          - 
             type: "ConfigChange"
         replicas: 1
         selector: 
@@ -70,10 +61,16 @@
             containers: 
               - 
                 name: "go-web"
-                image: "m7dock/go-web-redis"
+                image: "m7dock/go-web-redis:latest"
                 ports: 
                   - 
                     containerPort: 8080
+              - 
+                name: "redis"
+                image: "redis:5.0-alpine"
+                ports: 
+                  - 
+                    containerPort: 6379
   parameters: 
     - 
       name: "SOURCE_REPOSITORY_URL"
@@ -82,7 +79,7 @@
     - 
       name: "APPLICATION_DOMAIN"
       description: "The exposed hostname that will route to the Beego service"
-      value: "go-web.openshiftapps.com"
+      value: "go-r-web.192.168.0.20.nip.io"
     - 
       name: "GITHUB_WEBHOOK_SECRET"
       description: "Github trigger secret.  A difficult to guess string encoded as part of the webhook URL.  Not encrypted."
