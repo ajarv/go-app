@@ -4,14 +4,15 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"net/http/httputil"
 	"os"
 	"time"
+
 	"github.com/go-redis/redis"
 	"github.com/gorilla/mux"
-	"html/template"
 )
 
 const appVersion = "3.0.0"
@@ -37,11 +38,10 @@ func getDebugResponseString(req *http.Request) string {
 	const stemplate = `---
 App Version : %s
 Server Host : %s
-<< Request 
-Headers:
+Request:
+	Headers:
 %s
 ---
-
 `
 	return fmt.Sprintf(stemplate, appVersion, hostname, string(hdrs))
 }
@@ -64,9 +64,9 @@ func killHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 type RedisPageData struct {
-	PageTitle string
-	Count int64
-	Error error
+	PageTitle   string
+	Count       int64
+	Error       error
 	DebugString string
 }
 
@@ -83,13 +83,13 @@ func redishandler(w http.ResponseWriter, r *http.Request) {
 		DB:          0,  // use default DB
 		DialTimeout: time.Second * 5,
 	})
-	
+
 	result, err := redisdb.Incr("hits.go").Result()
-	data := RedisPageData {
-		PageTitle : "Redis Page",
-		Count: result,
-		Error: err,
-		DebugString:  getDebugResponseString(r),
+	data := RedisPageData{
+		PageTitle:   "Redis Page",
+		Count:       result,
+		Error:       err,
+		DebugString: getDebugResponseString(r),
 	}
 	w.Header().Set("Content-Type", "text/html")
 	tmpl.Execute(w, data)
@@ -118,7 +118,7 @@ func main() {
 	r := mux.NewRouter()
 
 	// This will serve files under http://localhost:8000/static/<filename>
-	r.PathPrefix("/static/").Handler( http.FileServer(http.Dir(dir)))
+	r.PathPrefix("/static/").Handler(http.FileServer(http.Dir(dir)))
 	// r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(dir))))
 	r.HandleFunc("/", handler)
 	r.HandleFunc("/redis", redishandler)

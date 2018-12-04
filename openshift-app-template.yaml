@@ -1,0 +1,91 @@
+---
+  kind: "Template"
+  apiVersion: "v1"
+  metadata: 
+    name: "go-template"
+    annotations: 
+      description: "Sample application written in Golang"
+      tags: "quickstart,golang"
+      iconClass: "icon-go-gopher"
+  labels: 
+    template: "go-template"
+    app: "go-web"
+  objects: 
+    - 
+      kind: "Service"
+      apiVersion: "v1"
+      metadata: 
+        name: "go-web"
+        annotations: 
+          description: "Exposes and load balances the application pods"
+      spec: 
+        ports: 
+          - 
+            name: "web"
+            port: 8080
+            targetPort: 8080
+        selector: 
+          name: "go-web"
+    - 
+      kind: "Route"
+      apiVersion: "v1"
+      metadata: 
+        name: "go-web"
+      spec: 
+        host: "${APPLICATION_DOMAIN}"
+        to: 
+          kind: "Service"
+          name: "go-web"
+    - 
+      kind: "DeploymentConfig"
+      apiVersion: "v1"
+      metadata: 
+        name: "go-web"
+        annotations: 
+          description: "Defines how to deploy the application server"
+      spec: 
+        strategy: 
+          type: "Recreate"
+        triggers: 
+          - 
+            type: "ImageChange"
+            imageChangeParams: 
+              automatic: true
+              containerNames: 
+                - "go-web"
+              from: 
+                kind: "ImageStreamTag"
+                name: "go-web:latest"
+          - 
+            type: "ConfigChange"
+        replicas: 1
+        selector: 
+          name: "go-web"
+        template: 
+          metadata: 
+            name: "go-web"
+            labels: 
+              name: "go-web"
+          spec: 
+            containers: 
+              - 
+                name: "go-web"
+                image: "m7dock/go-web-redis"
+                ports: 
+                  - 
+                    containerPort: 8080
+  parameters: 
+    - 
+      name: "SOURCE_REPOSITORY_URL"
+      description: "The URL of the repository with your application source code"
+      value: "https://github.com/openshift/golang-ex.git"
+    - 
+      name: "APPLICATION_DOMAIN"
+      description: "The exposed hostname that will route to the Beego service"
+      value: "go-web.openshiftapps.com"
+    - 
+      name: "GITHUB_WEBHOOK_SECRET"
+      description: "Github trigger secret.  A difficult to guess string encoded as part of the webhook URL.  Not encrypted."
+      generate: "expression"
+      from: "[a-zA-Z0-9]{40}"
+
