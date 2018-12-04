@@ -1,3 +1,7 @@
+# Sample GO app for running in Kubernetes
+
+Features - Redis / Bootstrap4 / Go Template but bare bones and none necessary.
+
 ## Clone Project
 
 ```
