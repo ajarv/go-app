@@ -34,6 +34,11 @@ docker build -t go-app .
 ```
 
 
+# Open shift
+
+Assuming you have openshift installed somewhere 
+And you are logged into openshift with oc. 
+
 ## Deploy on OpenShift  plain  directly 
 This won't create redis container
 
@@ -41,7 +46,7 @@ This won't create redis container
 oc new-app <this git repo url>
 ```
 
-## Deploy using template
+## Deploy on openshift using template
 
 ```
 oc process -f  openshift-app-template.yaml -p APPLICATION_DOMAIN=go-redis-app.<OPEN SHIFT INFA VIP/IP>.nip.io  | oc create -f -
