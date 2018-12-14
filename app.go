@@ -10,9 +10,9 @@ import (
 	"net/http/httputil"
 	"os"
 	"time"
-
-	"github.com/go-redis/redis"
+	
 	"github.com/gorilla/mux"
+
 )
 
 const appVersion = "3.0.0"
@@ -47,8 +47,10 @@ Request:
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	logRequest(r)
-	w.Write([]byte(getDebugResponseString(r)))
+	// logRequest(r)
+	data := map[string]interface{} {"PageTitle":"Index", "Header":r.Header}
+	w.Header().Set("Content-Type", "text/html")
+	tmpl.Execute(w, data)
 }
 
 func killHandler(w http.ResponseWriter, r *http.Request) {
@@ -63,46 +65,9 @@ func killHandler(w http.ResponseWriter, r *http.Request) {
 	}()
 }
 
-type RedisPageData struct {
-	PageTitle   string
-	Count       int64
-	Error       error
-	DebugString string
-}
 
 var tmpl = template.Must(template.ParseFiles("templates/layout.html"))
 
-func redishandler(w http.ResponseWriter, r *http.Request) {
-	logRequest(r)
-
-	// w.Write([]byte(getDebugResponseString(r)))
-
-	redisdb := redis.NewClient(&redis.Options{
-		Addr:        redisHost + ":" + redisPort,
-		Password:    "", // no password set
-		DB:          0,  // use default DB
-		DialTimeout: time.Second * 5,
-	})
-
-	result, err := redisdb.Incr("hits.go").Result()
-	data := RedisPageData{
-		PageTitle:   "Redis Page",
-		Count:       result,
-		Error:       err,
-		DebugString: getDebugResponseString(r),
-	}
-	w.Header().Set("Content-Type", "text/html")
-	tmpl.Execute(w, data)
-
-	// if err != nil {
-	// 	fmt.Fprintf(w, "Redis Error: %v\n", err)
-	// } else {
-	// 	fmt.Fprintf(w, "(redis) Hit Count : %v\n", result)
-	// }
-}
-
-var redisHost = getEnv("REDIS_SERVICE_HOST", "localhost")
-var redisPort = getEnv("REDIS_SERVICE_PORT", "6379")
 
 func main() {
 	var host string
@@ -121,7 +86,6 @@ func main() {
 	r.PathPrefix("/static/").Handler(http.FileServer(http.Dir(dir)))
 	// r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(dir))))
 	r.HandleFunc("/", handler)
-	r.HandleFunc("/redis", redishandler)
 	r.HandleFunc("/kill", killHandler)
 
 	srv := &http.Server{
@@ -131,8 +95,6 @@ func main() {
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
-
 	fmt.Fprintf(os.Stdout, "Server listening %s:%s\n", host, port)
-
 	log.Fatal(srv.ListenAndServe())
 }
