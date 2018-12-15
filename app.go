@@ -9,13 +9,15 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"os"
+	"strings"
 	"time"
-	
-	"github.com/gorilla/mux"
 
+ 	"gopkg.in/yaml.v2"
+	"github.com/gorilla/mux"
 )
 
-const appVersion = "3.0.0"
+var appVersion = getEnv("APP_VERSION","1.0.0")
+var appName = getEnv("APP_NAME","GO_WEB")
 
 func getEnv(key, fallback string) string {
 	if value, ok := os.LookupEnv(key); ok {
@@ -32,32 +34,60 @@ func logRequest(req *http.Request) {
 	log.Printf("--Request :%v\n", string(requestDump))
 }
 
-func getDebugResponseString(req *http.Request) string {
-	hdrs, _ := json.Marshal(req.Header)
-	var hostname, _ = os.Hostname()
-	const stemplate = `---
-App Version : %s
-Server Host : %s
-Request:
-	Headers:
-%s
----
-`
-	return fmt.Sprintf(stemplate, appVersion, hostname, string(hdrs))
+func getDebugData(req *http.Request) map[string]interface{}  {
+	var hostname, err = os.Hostname()
+	if err != nil {
+		hostname = "unknown host"
+	}
+	data := map[string]interface{} {
+		"Host": hostname,
+		"ApiVersion":appVersion,
+		"AppName":appName,
+		"Request": map[string]interface{}{ "Headers": req.Header}}
+	return data
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	// logRequest(r)
-	data := map[string]interface{} {"PageTitle":"Index", "Header":r.Header}
-	w.Header().Set("Content-Type", "text/html")
-	tmpl.Execute(w, data)
+	data:= getDebugData(r)
+
+	if strings.Contains(r.Header["Accept"][0], "html") {
+		w.Header().Set("Content-Type", "text/html")
+		tmpl.Execute(w, data)
+		return
+	} 
+
+	if strings.Contains(r.Header["Accept"][0], "json") {
+		data:= getDebugData(r)
+		w.Header().Set("Content-Type", "application/json")
+		b,err := json.Marshal(&data)
+		if err != nil {
+			w.Write([]byte(`{"result":"Error"}`))
+		}
+		w.Write(b)
+		return
+	} 
+	
+	w.Header().Set("Content-Type", "application/yaml")
+	b,err := yaml.Marshal(&data)
+	if err != nil {
+		w.Write([]byte(`{"result":"Error"}`))
+	}
+	w.Write(b)
+
 }
 
 func killHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r)
 
-	w.Write([]byte(getDebugResponseString(r)))
-	w.Write([]byte("\n\nWill terminate myself on your request in a few .. good bye !!"))
+	data:= getDebugData(r)
+	data["message"] ="Will terminate myself on your request in a few .. good bye !!"
+	w.Header().Set("Content-Type", "application/json")
+	b,err := json.Marshal(&data)
+	if err != nil {
+		w.Write([]byte(`{"result":"marshal error"}`))
+	}
+	w.Write(b)
 
 	go func() {
 		time.Sleep(4 * time.Second)
@@ -65,9 +95,7 @@ func killHandler(w http.ResponseWriter, r *http.Request) {
 	}()
 }
 
-
 var tmpl = template.Must(template.ParseFiles("templates/layout.html"))
-
 
 func main() {
 	var host string
@@ -86,7 +114,7 @@ func main() {
 	r.PathPrefix("/static/").Handler(http.FileServer(http.Dir(dir)))
 	// r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(dir))))
 	r.HandleFunc("/", handler)
-	r.HandleFunc("/kill", killHandler)
+	r.HandleFunc("/die", killHandler)
 
 	srv := &http.Server{
 		Handler: r,

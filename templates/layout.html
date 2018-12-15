@@ -24,8 +24,8 @@
 <body>
 
   <div class="jumbotron text-center text-info">
-    <h1>{{.PageTitle}}</h1>
-    <p>Get out of the Chair into the world!</p>
+    <h1>{{.AppName}} <small>{{.ApiVersion}}</small></h1>
+    <p>Serving from Host : {{.Host}}</p>
   </div>
   <div class="card">
     <div class="card-header">
@@ -40,7 +40,7 @@
           </tr>
         </thead>
         <tbody>
-          {{ range $key, $value := .Header }}
+          {{ range $key, $value := .Request.Headers }}
           <tr>
             <td>{{$key}}</td>
             <td>{{$value}}</td>
@@ -50,6 +50,11 @@
       </table>
     </div>
   </div>
+  <footer class="page-footer font-small blue pt-4">
+    <div class="footer-copyright text-center py-3">GitHub:
+      <a href="https://github.com/ajarv/go-app-docker.git"> https://github.com/ajarv/go-app-docker.git</a>
+    </div>
+  </footer>
 </body>
 
 </html>
