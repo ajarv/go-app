@@ -17,7 +17,7 @@ spec:
           image: m7dock/go-app
           env:
             - name: APP_NAME
-              value: Hyundai
+              value: Taylor
             - name: APP_VERSION
               value: 1.432.3
           ports:
@@ -27,7 +27,7 @@ spec:
           image: m7dock/go-app
           env:
             - name: APP_NAME
-              value: J B Hunt
+              value: Swift
           command:
             - ./main
             - "--port"
