@@ -52,7 +52,6 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	data:= getDebugData(r)
 
 	if strings.Contains(r.Header["Accept"][0], "html") {
-		data := map[string]interface{}{"PageTitle": "Index", "Header": r.Header}
 		w.Header().Set("Content-Type", "text/html")
 		tmpl.Execute(w, data)
 		return
