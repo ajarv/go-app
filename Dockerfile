@@ -4,7 +4,7 @@ ADD . /go/src/github.com/ajarv/go-web-redis/
 WORKDIR /go/src/github.com/ajarv/go-web-redis/
 RUN apk update && apk upgrade && \
     apk add --no-cache bash git openssh && \
-    go get -d -v  github.com/go-redis/redis github.com/gorilla/mux
+    go get -d -v  github.com/go-redis/redis github.com/gorilla/mux gopkg.in/yaml.v2
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
 
 
