@@ -16,5 +16,6 @@ COPY --from=0 /go/src/github.com/ajarv/go-web-redis/main .
 ADD ./static /work/static
 ADD ./templates /work/templates
 USER 1012
-EXPOSE 8080
-CMD ["./main"]  
+ENV LISTEN_PORT 8080
+EXPOSE ${LISTEN_PORT}
+CMD ./main --port ${LISTEN_PORT}  
