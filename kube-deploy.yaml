@@ -1,0 +1,96 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shyam
+spec:
+  selector:
+    matchLabels:
+      app: shyam
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: shyam
+    spec:
+      containers:
+        - name: radha
+          image: m7dock/go-app
+          env:
+            - name: APP_NAME
+              value: Radha
+            - name: APP_VERSION
+              value: 1.432.3
+          ports:
+            - name: radha-kishen
+              containerPort: 8080
+        - name: gopi
+          image: m7dock/go-app
+          env:
+            - name: APP_NAME
+              value: Gopi
+          command:
+            - ./main
+            - "--port"
+            - "9080"
+          ports:
+            - name: gopi-kishen
+              containerPort: 9080
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: shamu
+spec:
+  selector:
+    app: shyam
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: radha-kishen
+      name: karan
+    - protocol: TCP
+      port: 9080
+      targetPort: gopi-kishen
+      name: bhisham
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: shamu
+spec:
+  host: govind.192.168.0.170.nip.io
+  path: /
+  port:
+    targetPort: bhisham
+  to:
+    kind: Service
+    name: shamu
+    weight: 100
+  wildcardPolicy: None
+status:
+  ingress:
+    - conditions:
+      host: govind.192.168.0.170.nip.io
+      routerName: router
+      wildcardPolicy: None
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: keshav
+spec:
+  host: keshav.192.168.0.170.nip.io
+  path: /
+  port:
+    targetPort: karan
+  to:
+    kind: Service
+    name: shamu
+    weight: 100
+  wildcardPolicy: None
+status:
+  ingress:
+    - conditions:
+      host: keshav.192.168.0.170.nip.io
+      routerName: router
+      wildcardPolicy: None
