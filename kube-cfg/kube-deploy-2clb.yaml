@@ -17,7 +17,7 @@ spec:
           image: m7dock/go-app
           env:
             - name: APP_NAME
-              value: Hyundai
+              value: Taylor
             - name: APP_VERSION
               value: 1.432.3
           ports:
@@ -27,7 +27,7 @@ spec:
           image: m7dock/go-app
           env:
             - name: APP_NAME
-              value: J B Hunt
+              value: Swift
           command:
             - ./main
             - "--port"
@@ -48,49 +48,40 @@ spec:
       port: 8080
       targetPort: hongkong
       name: kwloon
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: ups
+spec:
+  selector:
+    app: go-app-2-c
+  ports:
     - protocol: TCP
-      port: 9080
+      port: 8080
       targetPort: singapore
-      name: dhobighaat
+      name: kwloon
 ---
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
-  name: kwloon
+  name: new-york
 spec:
-  host: kwloon.2c.192.168.0.170.nip.io
-  path: /
+  alternateBackends:
+    - kind: Service
+      name: ups
+      weight: 67
+  host: new-york-una.apps.192.168.0.170.nip.io
   port:
     targetPort: kwloon
   to:
     kind: Service
     name: fedex
-    weight: 100
+    weight: 33
   wildcardPolicy: None
 status:
   ingress:
     - conditions:
-      host: kwloon.2c.192.168.0.170.nip.io
-      routerName: router
-      wildcardPolicy: None
----
-apiVersion: route.openshift.io/v1
-kind: Route
-metadata:
-  name: dhobighaat
-spec:
-  host: dhobighaat.2c.192.168.0.170.nip.io
-  path: /
-  port:
-    targetPort: dhobighaat
-  to:
-    kind: Service
-    name: fedex
-    weight: 100
-  wildcardPolicy: None
-status:
-  ingress:
-    - conditions:
-      host: dhobighaat.2c.192.168.0.170.nip.io
+      host: new-york-una.apps.192.168.0.170.nip.io
       routerName: router
       wildcardPolicy: None

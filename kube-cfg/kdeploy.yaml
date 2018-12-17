@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gomukh
+spec:
+  selector:
+    matchLabels:
+      app: gomukh
+  template:
+    metadata:
+      labels:
+        app: gomukh
+    spec:
+      containers:
+        - name: gomukh
+          image: m7dock/go-app
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              memory: 64Mi
+              cpu: 50m
+            limits:
+              memory: 128Mi
+              cpu: 100m

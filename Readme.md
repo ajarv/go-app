@@ -33,13 +33,13 @@ Two phaze docker build
 docker build -t go-app .
 ```
 
-
 # Open shift
 
-Assuming you have openshift installed somewhere 
-And you are logged into openshift with oc. 
+Assuming you have openshift installed somewhere
+And you are logged into openshift with oc.
 
-## Deploy on OpenShift  plain  directly 
+## Deploy on OpenShift plain directly
+
 This won't create redis container
 
 ```
@@ -49,5 +49,5 @@ oc new-app <this git repo url>
 ## Deploy on openshift using template
 
 ```
-oc process -f  openshift-app-template.yaml -p APPLICATION_DOMAIN=go-redis-app.<OPEN SHIFT INFA VIP/IP>.nip.io  | oc create -f -
+oc process -f  kube-cfg/openshift-app-template.yaml -p APP_NAME=angel  | oc create -f -
 ```

@@ -1,88 +1,124 @@
----
-  kind: "Template"
-  apiVersion: "v1"
-  metadata: 
-    name: "go-template"
-    annotations: 
-      description: "Sample application written in Golang"
-      tags: "quickstart,golang"
-      iconClass: "icon-go-gopher"
-  labels: 
-    template: "go-template"
-    app: "go-web"
-  objects: 
-    - 
-      kind: "Service"
-      apiVersion: "v1"
-      metadata: 
-        name: "go-web"
-        annotations: 
-          description: "Exposes and load balances the application pods"
-      spec: 
-        ports: 
-          - 
-            name: "web"
-            port: 8080
-            targetPort: 8080
-        selector: 
-          name: "go-web"
-    - 
-      kind: "Route"
-      apiVersion: "v1"
-      metadata: 
-        name: "go-web"
-      spec: 
-        host: "${APPLICATION_DOMAIN}"
-        to: 
-          kind: "Service"
-          name: "go-web"
-    - 
-      kind: "DeploymentConfig"
-      apiVersion: "v1"
-      metadata: 
-        name: "go-web"
-        annotations: 
-          description: "Defines how to deploy the application server"
-      spec: 
-        strategy: 
-          type: "Recreate"
-        triggers: 
-          - 
-            type: "ConfigChange"
-        replicas: 1
-        selector: 
-          name: "go-web"
-        template: 
-          metadata: 
-            name: "go-web"
-            labels: 
-              name: "go-web"
-          spec: 
-            containers: 
-              - 
-                name: "go-web"
-                image: "m7dock/go-web-redis:latest"
-                ports: 
-                  - 
-                    containerPort: 8080
-              - 
-                name: "redis"
-                image: "redis:5.0-alpine"
-                ports: 
-                  - 
-                    containerPort: 6379
-  parameters: 
-    - 
-      name: "SOURCE_REPOSITORY_URL"
-      description: "The URL of the repository with your application source code"
-      value: "https://github.com/openshift/golang-ex.git"
-    - 
-      name: "APPLICATION_DOMAIN"
-      description: "The exposed hostname that will route to the Beego service"
-      value: "go-r-web.192.168.0.20.nip.io"
-    - 
-      name: "GITHUB_WEBHOOK_SECRET"
-      description: "Github trigger secret.  A difficult to guess string encoded as part of the webhook URL.  Not encrypted."
-      generate: "expression"
-      from: "[a-zA-Z0-9]{40}"
+kind: "Template"
+apiVersion: "v1"
+metadata:
+  name: "two-c-app-template"
+  annotations:
+    description: "Two App Deployment template"
+    tags: "quickstart,golang"
+    iconClass: "icon-go-gopher"
+labels:
+  template: "go-2c-template"
+  app: "go-2c-app"
+objects:
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: "${APP_NAME}-app"
+    spec:
+      selector:
+        matchLabels:
+          app: "${APP_NAME}-app"
+      replicas: 1
+      template:
+        metadata:
+          labels:
+            app: "${APP_NAME}-app"
+        spec:
+          containers:
+            - name: c-1
+              image: m7dock/go-app
+              env:
+                - name: APP_NAME
+                  value: "${C1_NAME}"
+                - name: APP_VERSION
+                  value: 1.432.3
+              ports:
+                - name: "${C1_NAME}-port"
+                  containerPort: 8080
+              resources:
+                requests:
+                  memory: 64Mi
+                  cpu: 50m
+                limits:
+                  memory: 128Mi
+                  cpu: 100m
+            - name: c-2
+              image: m7dock/go-app
+              env:
+                - name: APP_NAME
+                  value: "${C2_NAME}"
+              command:
+                - ./main
+                - "--port"
+                - "9080"
+              ports:
+                - name: "${C2_NAME}-port"
+                  containerPort: 9080
+              resources:
+                requests:
+                  memory: 64Mi
+                  cpu: 50m
+                limits:
+                  memory: 128Mi
+                  cpu: 100m
 
+  - kind: Service
+    apiVersion: v1
+    metadata:
+      name: "${C1_NAME}-svc"
+    spec:
+      selector:
+        app: "${APP_NAME}-app"
+      ports:
+        - protocol: TCP
+          port: 8080
+          targetPort: "${C1_NAME}-port"
+          name: http
+  - kind: Service
+    apiVersion: v1
+    metadata:
+      name: "${C2_NAME}-svc"
+    spec:
+      selector:
+        app: "${APP_NAME}-app"
+      ports:
+        - protocol: TCP
+          port: 8080
+          targetPort: "${C2_NAME}-port"
+          name: http
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      name: "${APP_NAME}-split-route"
+    spec:
+      alternateBackends:
+        - kind: Service
+          name: "${C2_NAME}-svc"
+          weight: 67
+      host: "${APP_NAME}.2capp.${LBVIP}.nip.io"
+      port:
+        targetPort: http
+      to:
+        kind: Service
+        name: "${C2_NAME}-svc"
+        weight: 33
+      wildcardPolicy: None
+    status:
+      ingress:
+        - conditions:
+          host: "${APP_NAME}.2capp.${LBVIP}.nip.io"
+          routerName: router
+          wildcardPolicy: None
+parameters:
+  - name: "APP_NAME"
+    description: "Application Name"
+    value: nafta
+  - name: "C1_NAME"
+    description: "Name of First Container"
+    value: canada
+  - name: "C2_NAME"
+    description: "Name of First Container"
+    value: mexico
+  - name: "LBVIP"
+    description: "Loadbalancer VIP"
+    value: "192.168.0.20"
