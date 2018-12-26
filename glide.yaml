@@ -1,0 +1,5 @@
+package: go_app_with_glide
+import:
+- package: github.com/go-redis/redis
+- package: github.com/gorilla/mux 
+- package: gopkg.in/yaml.v2

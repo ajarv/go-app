@@ -1,0 +1,6 @@
+---
+applications:
+  - name: go-app
+    env:
+      GOVERSION: go1.8
+      
