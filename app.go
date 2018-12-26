@@ -31,7 +31,7 @@ func logRequest(req *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("--Request :%v\n", string(requestDump))
+	log.Printf("--Request :%v\n------------\n", string(requestDump))
 }
 
 func getDebugData(req *http.Request) map[string]interface{}  {
@@ -65,7 +65,7 @@ func getDebugData(req *http.Request) map[string]interface{}  {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	// logRequest(r)
+	logRequest(r)
 	data:= getDebugData(r)
 
 	if strings.Contains(r.Header["Accept"][0], "html") {
@@ -95,7 +95,13 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func killHandler(w http.ResponseWriter, r *http.Request) {
-	// logRequest(r)
+	defer func() {
+		log.Printf("Dieing now .. good bye")
+		time.Sleep(4 * time.Second)
+		os.Exit(3)
+	}()
+
+	logRequest(r)
 	data:= getDebugData(r)
 	data["message"] ="Will terminate myself on your request in a few .. good bye !!"
 
@@ -123,10 +129,7 @@ func killHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Write(b)
 
-	go func() {
-		time.Sleep(4 * time.Second)
-		os.Exit(3)
-	}()
+	
 }
 
 var tmpl = template.Must(template.ParseFiles("templates/layout.html"))
