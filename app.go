@@ -39,11 +39,28 @@ func getDebugData(req *http.Request) map[string]interface{}  {
 	if err != nil {
 		hostname = "unknown host"
 	}
+
+	getenvironment := func(data []string, getkeyval func(item string) (key, val string)) map[string]string {
+        items := make(map[string]string)
+        for _, item := range data {
+            key, val := getkeyval(item)
+            items[key] = val
+        }
+        return items
+    }
+    environment := getenvironment(os.Environ(), func(item string) (key, val string) {
+        splits := strings.Split(item, "=")
+        key = splits[0]
+        val = splits[1]
+        return
+    })
+
 	data := map[string]interface{} {
 		"Host": hostname,
 		"ApiVersion":appVersion,
 		"AppName":appName,
-		"Request": map[string]interface{}{ "Headers": req.Header}}
+		"Request": map[string]interface{}{ "Headers": req.Header},
+		"Environment": environment}
 	return data
 }
 
