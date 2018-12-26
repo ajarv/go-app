@@ -1,4 +1,4 @@
-package: go_app_with_glide
+package: main
 import:
 - package: github.com/go-redis/redis
 - package: github.com/gorilla/mux 
