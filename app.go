@@ -14,6 +14,7 @@ import (
 
  	"gopkg.in/yaml.v2"
 	"github.com/gorilla/mux"
+	"github.com/go-redis/redis"
 )
 
 var appVersion = getEnv("APP_VERSION","1.0.0")
@@ -64,13 +65,13 @@ func getDebugData(req *http.Request) map[string]interface{}  {
 	return data
 }
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	logRequest(r)
-	data:= getDebugData(r)
-
+func writeData(w http.ResponseWriter, r *http.Request,data map[string]interface{}){
 	if strings.Contains(r.Header["Accept"][0], "html") {
 		w.Header().Set("Content-Type", "text/html")
-		tmpl.Execute(w, data)
+		err := tmpl.Execute(w, data)
+		if err != nil {
+			w.Write([]byte(`{"result":"Error"}`))
+		}
 		return
 	} 
 
@@ -80,6 +81,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		b,err := json.Marshal(&data)
 		if err != nil {
 			w.Write([]byte(`{"result":"Error"}`))
+		return
 		}
 		w.Write(b)
 		return
@@ -89,9 +91,16 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	b,err := yaml.Marshal(&data)
 	if err != nil {
 		w.Write([]byte(`{"result":"Error"}`))
+		return
 	}
 	w.Write(b)
 
+}
+
+func handler(w http.ResponseWriter, r *http.Request) {
+	logRequest(r)
+	data:= getDebugData(r)
+	writeData(w,r,data)
 }
 
 func killHandler(w http.ResponseWriter, r *http.Request) {
@@ -104,33 +113,31 @@ func killHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r)
 	data:= getDebugData(r)
 	data["message"] ="Will terminate myself on your request in a few .. good bye !!"
-
-	if strings.Contains(r.Header["Accept"][0], "html") {
-		w.Header().Set("Content-Type", "text/html")
-		tmpl.Execute(w, data)
-		return
-	} 
-
-	if strings.Contains(r.Header["Accept"][0], "json") {
-		data:= getDebugData(r)
-		w.Header().Set("Content-Type", "application/json")
-		b,err := json.Marshal(&data)
-		if err != nil {
-			w.Write([]byte(`{"result":"Error"}`))
-		}
-		w.Write(b)
-		return
-	} 
-	
-	w.Header().Set("Content-Type", "application/yaml")
-	b,err := yaml.Marshal(&data)
-	if err != nil {
-		w.Write([]byte(`{"result":"Error"}`))
-	}
-	w.Write(b)
-
-	
+	writeData(w,r,data)
 }
+func redisHandler(w http.ResponseWriter, r *http.Request) {
+	logRequest(r)
+	data:= getDebugData(r)
+	redisdb := redis.NewClient(&redis.Options{
+		Addr:        redisHost + ":" + redisPort,
+		Password:    "", // no password set
+		DB:          0,  // use default DB
+		DialTimeout: time.Second ,
+	})
+
+	count, err := redisdb.Incr("hits.go").Result()
+	if err != nil {
+		data["warning"] = fmt.Sprintf("Unable to connect redis server at %s:%s", redisHost,redisPort)
+	}else{
+		data["message"] = fmt.Sprintf("Hit Count from Redis key hits.go : %v", count)
+	}
+	writeData(w,r,data)
+}
+
+var redisHost = getEnv("REDIS_SERVICE_HOST", "localhost")
+var redisPort = getEnv("REDIS_SERVICE_PORT", "6379")
+
+
 
 var tmpl = template.Must(template.ParseFiles("templates/layout.html"))
 
@@ -152,6 +159,7 @@ func main() {
 	// r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(dir))))
 	r.HandleFunc("/", handler)
 	r.HandleFunc("/die", killHandler)
+	r.HandleFunc("/redis", redisHandler)
 
 	srv := &http.Server{
 		Handler: r,

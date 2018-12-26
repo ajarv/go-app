@@ -3,6 +3,6 @@ applications:
   - name: go-app
     buildpack: https://github.com/cloudfoundry/go-buildpack.git
     host: goga
-    memory: 37M
+    memory: 32M
     env:
       GOPACKAGENAME: go-app

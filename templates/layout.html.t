@@ -38,15 +38,25 @@
 
   <div class="jumbotron text-info">
     <h2 class="notimportant">All important things in life start with white</h2>
-    <h4 class="text-right text-danger">
-      -- <small>
-        {{.AppName}}.{{.ApiVersion}} | Host:{{.Host}}
+    <h4 class="text-right text-danger font-italic font-weight-light">
+        --
+        <span class="badge badge-secondary"> 
+          {{.AppName}} | {{.ApiVersion}}
+        </span>
+        <span class="badge badge-primary"> 
+          Host {{.Host}}
+        </span>
         {{ if .Environment.CF_INSTANCE_INDEX }}
-        [ CF Instance : {{.Environment.CF_INSTANCE_INDEX}} ]
+        <span class="badge badge-info"> 
+          CF Instance {{.Environment.CF_INSTANCE_INDEX}}
+        </span>
         {{end}}
-      </small> </h4>
+    </h4>
     {{ if .message }}
     <p class="alert alert-info">{{.message}}</p>
+    {{end}}
+    {{ if .warning }}
+    <p class="alert alert-warning">{{.warning}}</p>
     {{end}}
   </div>
 
