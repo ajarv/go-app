@@ -62,12 +62,17 @@ oc process -f  kube-cfg/openshift-app-template.yaml -p APP_NAME=joker  | oc crea
 
 ## 4 Cloud Foundary
 
+### Cloudfoundry access
+If you don't have access to cloudfoundry you can follow the tutorial [here](http://operator-workshop.cloudfoundry.org/agenda/) to provision it on a local linux box.
+
+
 #### 4.1  White deployment
 ```
 cd go-app-docker
 cf login ..
 cf create-space gosham-city
 cf target -s "gosham-city"
+
 cf push -n joker  
 
 ```
@@ -101,7 +106,7 @@ Lets try a green deployment
 
 ```bash
 sed 's/white/green/'  templates/layout.html.t > templates/layout.html
-cf push -n green-joker  
+cf push green-joker -n green-joker  
 ```
 
 
