@@ -32,7 +32,7 @@
 
 <body>
 
-  <div class="jumbotron text-center text-info">
+  <div class="jumbotron text-info">
     <h2 class="notimportant">All important things in life start with a white Screen</h2>
     <h4 class="pull-right"> -- {{.AppName}} <small>{{.ApiVersion}}</small></h4>
     <p>Serving from Host : {{.Host}}</p>
