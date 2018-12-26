@@ -23,12 +23,18 @@
   .debuginfo {
     font-family: 'Ubuntu', sans-serif;
   }
+  
+  .notimportant{
+    color: white;
+  }
+
 </style>
 
 <body>
 
   <div class="jumbotron text-center text-info">
-    <h1>{{.AppName}} <small>{{.ApiVersion}}</small></h1>
+    <h2 class="notimportant">All important things in life start with a white Screen</h2>
+    <h4 class="pull-right"> -- {{.AppName}} <small>{{.ApiVersion}}</small></h4>
     <p>Serving from Host : {{.Host}}</p>
     {{ if .message }}
       <p class="alert alert-info">{{.message}}</p>
