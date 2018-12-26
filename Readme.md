@@ -62,7 +62,7 @@ oc process -f  kube-cfg/openshift-app-template.yaml -p APP_NAME=joker  | oc crea
 
 ## 4 Cloud Foundary
 
-####4.1  White deployment
+#### 4.1  White deployment
 ```
 cd go-app-docker
 cf login ..
@@ -84,14 +84,24 @@ last uploaded: Wed Dec 26 17:08:48 UTC 2018
 stack: cflinuxfs2
 buildpack: https://github.com/cloudfoundry/go-buildpack.git
 ```
-Access the app at any of the ```urls``
+Access the app at any of the ```urls`` e.g.  joker.cfapps.io 
 
 Modify the app and redeploy
-####4.1  Blue deployment
+#### 4.2  Blue deployment
 
 ```bash
 sed 's/white/blue/'  templates/layout.html.t > templates/layout.html
 cf push -n joker  
+```
+Access the app at any of the ```urls`` e.g.  joker.cfapps.io  *when it becomes available*
+
+Problem with blue dep is that while its updating the existing app becomes unavailable
+Lets try a green deployment
+#### 4.3  Green deployment
+
+```bash
+sed 's/white/green/'  templates/layout.html.t > templates/layout.html
+cf push -n green-joker  
 ```
 
 
