@@ -1,4 +1,9 @@
+package: main
 import:
-- package: github.com/go-redis/redis
-- package: github.com/gorilla/mux 
-- package: gopkg.in/yaml.v2
+- package: github.com/go-redis
+  subpackages:
+    - foo
+- package: github.com/gorilla
+  subpackages: mux 
+- package: gopkg.in
+  subpackages: yaml.v2
