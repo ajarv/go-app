@@ -64,7 +64,8 @@ oc process -f  kube-cfg/openshift-app-template.yaml -p APP_NAME=joker  | oc crea
 
 ### Cloudfoundry access
 If you don't have access to cloudfoundry you can follow the tutorial [here](http://operator-workshop.cloudfoundry.org/agenda/) to provision it on a local linux box.
-
+OR
+you may get a trial account at [https://pivotal.io/platform](https://pivotal.io/platform)
 
 #### 4.1  White deployment
 ```
