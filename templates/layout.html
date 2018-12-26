@@ -26,7 +26,11 @@
   <div class="jumbotron text-center text-info">
     <h1>{{.AppName}} <small>{{.ApiVersion}}</small></h1>
     <p>Serving from Host : {{.Host}}</p>
+    {{ if .message }}
+      <p class="alert alert-info">{{.message}}</p>
+    {{end}}
   </div>
+
   <div class="card">
     <div class="card-header">
       <h2>Request headers</h2>

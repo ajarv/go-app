@@ -78,14 +78,31 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func killHandler(w http.ResponseWriter, r *http.Request) {
-	logRequest(r)
-
+	// logRequest(r)
 	data:= getDebugData(r)
 	data["message"] ="Will terminate myself on your request in a few .. good bye !!"
-	w.Header().Set("Content-Type", "application/json")
-	b,err := json.Marshal(&data)
+
+	if strings.Contains(r.Header["Accept"][0], "html") {
+		w.Header().Set("Content-Type", "text/html")
+		tmpl.Execute(w, data)
+		return
+	} 
+
+	if strings.Contains(r.Header["Accept"][0], "json") {
+		data:= getDebugData(r)
+		w.Header().Set("Content-Type", "application/json")
+		b,err := json.Marshal(&data)
+		if err != nil {
+			w.Write([]byte(`{"result":"Error"}`))
+		}
+		w.Write(b)
+		return
+	} 
+	
+	w.Header().Set("Content-Type", "application/yaml")
+	b,err := yaml.Marshal(&data)
 	if err != nil {
-		w.Write([]byte(`{"result":"marshal error"}`))
+		w.Write([]byte(`{"result":"Error"}`))
 	}
 	w.Write(b)
 
