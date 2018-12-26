@@ -1,15 +1,13 @@
 ## Web App in Go
 
-This is a sample Go App for runtime show case
+This is a sample web application developed in Go lang that can be run on various cloud /native platforms:
+
 * Native
 * Docker
 * OpenShift
 * Cloud Foundary
 
-
-
-
-Features - Redis / Bootstrap4 / Go Template but bare bones and none necessary.
+Features - Bootstrap4 / Go Template but bare bones and none necessary.
 
 ## 0. Clone Project
 
@@ -30,10 +28,6 @@ Access the app using curl
 curl localhost:8080
 ```
 
-Start Redis instance on localhost
-
-access http://localhost:8080/redis on browser
-
 ## 2. Create docker Image
 
 Two phaze docker build
@@ -47,9 +41,13 @@ docker build -t go-app .
 Assuming you have openshift installed somewhere
 And you are logged into openshift with oc.
 
+```
+oc login ...
+oc new-project gosham-city --display-name "Gosham City"
+
+```
 ### 3.1 Deploy on OpenShift plain directly
 
-This won't create redis container
 
 ```
 oc new-app <this git repo url>
@@ -58,8 +56,44 @@ oc new-app <this git repo url>
 ### 3.2 Deploy on openshift using template
 
 ```
-oc process -f  kube-cfg/openshift-app-template.yaml -p APP_NAME=angel  | oc create -f -
+oc process -f  kube-cfg/openshift-app-template.yaml -p APP_NAME=joker  | oc create -f -
 ```
 
 
 ## 4 Cloud Foundary
+
+####4.1  White deployment
+```
+cd go-app-docker
+cf login ..
+cf create-space gosham-city
+cf target -s "gosham-city"
+cf push -n joker  
+
+```
+
+```bash
+Showing health and status for app go-app in org ../ space gosham-city as .......
+OK
+
+requested state: started
+instances: 1/1
+usage: 1G x 1 instances
+urls: joker.cfapps.io
+last uploaded: Wed Dec 26 17:08:48 UTC 2018
+stack: cflinuxfs2
+buildpack: https://github.com/cloudfoundry/go-buildpack.git
+```
+Access the app at any of the ```urls``
+
+Modify the app and redeploy
+####4.1  Blue deployment
+
+```bash
+sed 's/white/blue/'  templates/layout.html.t > templates/layout.html
+cf push -n joker  
+```
+
+
+
+
