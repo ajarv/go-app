@@ -1,17 +1,26 @@
-# Sample GO app for running in Kubernetes
+## Web App in Go
+
+This is a sample Go App for runtime show case
+* Native
+* Docker
+* OpenShift
+* Cloud Foundary
+
+
+
 
 Features - Redis / Bootstrap4 / Go Template but bare bones and none necessary.
 
-## Clone Project
+## 0. Clone Project
 
 ```
-git clone <this git repo url>
+git clone https://github.com/ajarv/go-app-docker.git
 ```
 
-## Run on Local Host
+## 1. Run on Local Host
 
 ```
-cd go-web-redis-docker
+cd go-app-docker
 run app.go
 ```
 
@@ -25,7 +34,7 @@ Start Redis instance on localhost
 
 access http://localhost:8080/redis on browser
 
-## Create docker Image
+## 2. Create docker Image
 
 Two phaze docker build
 
@@ -33,12 +42,12 @@ Two phaze docker build
 docker build -t go-app .
 ```
 
-# Open shift
+## 3. Open shift
 
 Assuming you have openshift installed somewhere
 And you are logged into openshift with oc.
 
-## Deploy on OpenShift plain directly
+### 3.1 Deploy on OpenShift plain directly
 
 This won't create redis container
 
@@ -46,8 +55,11 @@ This won't create redis container
 oc new-app <this git repo url>
 ```
 
-## Deploy on openshift using template
+### 3.2 Deploy on openshift using template
 
 ```
 oc process -f  kube-cfg/openshift-app-template.yaml -p APP_NAME=angel  | oc create -f -
 ```
+
+
+## 4 Cloud Foundary
