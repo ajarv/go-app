@@ -39,7 +39,7 @@
   <div class="jumbotron text-info">
     <h2 class="notimportant">All important things in life start with white</h2>
     <h4 class="text-right text-danger font-italic font-weight-light">
-        --
+        <span>--&gt;</span>
         <span class="badge badge-secondary"> 
           {{.AppName}} | {{.ApiVersion}}
         </span>
@@ -58,6 +58,11 @@
     {{ if .warning }}
     <p class="alert alert-warning">{{.warning}}</p>
     {{end}}
+    <div class="float-right">
+      <a href="/" class="btn btn-dark" role="button">Start over</a>
+      <a href="/redis" class="btn btn-success" role="button">Hit redis</a>
+      <a href="/die" class="btn btn-danger" role="button">Kill server</a>
+    </div>
   </div>
   <div class="container sayings notimportant">
     <div class="row">
