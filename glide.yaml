@@ -3,3 +3,4 @@ import:
   - package: github.com/gorilla/mux
   - package: gopkg.in/yaml.v2
   - package: github.com/go-redis/redis
+  - package: github.com/thedevsaddam/gojsonq
