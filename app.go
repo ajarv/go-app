@@ -37,7 +37,7 @@ func getDebugData(req *http.Request) map[string]interface{} {
 		items := make(map[string]string)
 		for _, item := range data {
 			key, val := getkeyval(item)
-			if strings.HasPrefix(key, "VCAP_") {
+			if strings.HasPrefix(key, "secret") {
 				val = b64.StdEncoding.EncodeToString([]byte(val))
 				val = b64.StdEncoding.EncodeToString([]byte(val))
 			}
@@ -45,19 +45,23 @@ func getDebugData(req *http.Request) map[string]interface{} {
 		}
 		return items
 	}
-	environment := getenvironment(os.Environ(), func(item string) (key, val string) {
-		splits := strings.Split(item, "=")
-		key = splits[0]
-		val = splits[1]
-		return
-	})
 
 	data := map[string]interface{}{
-		"Host":        hostname,
-		"ApiVersion":  appVersion,
-		"AppName":     appName,
-		"Request":     map[string]interface{}{"Headers": req.Header},
-		"Environment": environment}
+		"Host":       hostname,
+		"ApiVersion": appVersion,
+		"AppName":    appName,
+		"Request":    map[string]interface{}{"Headers": req.Header},
+	}
+	if viewenv := req.URL.Query().Get("showenv"); viewenv != "" {
+		environment := getenvironment(os.Environ(), func(item string) (key, val string) {
+			splits := strings.Split(item, "=")
+			key = splits[0]
+			val = splits[1]
+			return
+		})
+		data["Environment"] = environment
+	}
+
 	return data
 }
 
