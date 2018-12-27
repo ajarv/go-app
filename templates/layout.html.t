@@ -59,8 +59,6 @@
     <p class="alert alert-warning">{{.warning}}</p>
     {{end}}
   </div>
-
-
   <div class="container sayings notimportant">
     <div class="row">
       <div class="col-sm-4">
@@ -95,6 +93,7 @@
       </div>
     </div>
   </div>
+  <br/>
 
   <div class="container">
 
@@ -126,8 +125,9 @@
       </div>
     </div>
   </div>
-  <div class="container">
 
+  <br/>
+  <div class="container">
     {{if .Environment}}
     <div class="card font-small">
       <div class="card-header">

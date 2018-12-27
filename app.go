@@ -17,16 +17,6 @@ import (
 	"github.com/go-redis/redis"
 )
 
-var appVersion = getEnv("APP_VERSION","1.0.0")
-var appName = getEnv("APP_NAME","GO_WEB")
-
-func getEnv(key, fallback string) string {
-	if value, ok := os.LookupEnv(key); ok {
-		return value
-	}
-	return fallback
-}
-
 func logRequest(req *http.Request) {
 	requestDump, err := httputil.DumpRequest(req, true)
 	if err != nil {
@@ -120,7 +110,7 @@ func redisHandler(w http.ResponseWriter, r *http.Request) {
 	data:= getDebugData(r)
 	redisdb := redis.NewClient(&redis.Options{
 		Addr:        redisHost + ":" + redisPort,
-		Password:    "", // no password set
+		Password:    redisPassword, // no password set
 		DB:          0,  // use default DB
 		DialTimeout: time.Second ,
 	})
@@ -136,7 +126,31 @@ func redisHandler(w http.ResponseWriter, r *http.Request) {
 
 var redisHost = getEnv("REDIS_SERVICE_HOST", "localhost")
 var redisPort = getEnv("REDIS_SERVICE_PORT", "6379")
+var redisPassword = getEnv("REDIS_SERVICE_PASSWORD", "")
+var appVersion = getEnv("APP_VERSION","1.0.0")
+var appName = getEnv("APP_NAME","GO_WEB")
 
+func getEnv(key, fallback string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+	return fallback
+}
+
+func parseCFSettings(){
+	if value, ok := os.LookupEnv("VCAP_SERVICES"); ok {
+		// var serviceData map[string]interface{}
+
+		// if err := json.Unmarshal([]byte (value), &serviceData); err == nil {
+		// 	  redisHost = serviceData["rediscloud"][0]["credentials"]["hostname"]  
+		// 	  redisPort = serviceData["rediscloud"][0]["credentials"]["port"]  
+		// 	  redisPassword = serviceData["rediscloud"][0]["credentials"]["password"]  
+		// }
+		fmt.Println(value)
+
+	}
+
+}
 
 
 var tmpl = template.Must(template.ParseFiles("templates/layout.html"))
@@ -149,11 +163,13 @@ func main() {
 	flag.StringVar(&dir, "dir", ".", "the directory to serve files from. Defaults to the current dir")
 	flag.StringVar(&host, "host", "0.0.0.0", "listen host")
 	flag.StringVar(&port, "port", "8080", "listen port")
-
 	flag.Parse()
 
-	r := mux.NewRouter()
+	parseCFSettings();
 
+
+
+	r := mux.NewRouter()
 	// This will serve files under http://localhost:8000/static/<filename>
 	r.PathPrefix("/static/").Handler(http.FileServer(http.Dir(dir)))
 	// r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(dir))))

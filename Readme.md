@@ -67,10 +67,15 @@ If you don't have access to cloudfoundry you can follow the tutorial [here](http
 OR
 you may get a trial account at [https://pivotal.io/platform](https://pivotal.io/platform)
 
+```
+cf login ..
+# See running apps
+cf apps
+```
 #### 4.1  White deployment
+
 ```
 cd go-app-docker
-cf login ..
 cf create-space gosham-city
 cf target -s "gosham-city"
 
@@ -90,7 +95,15 @@ last uploaded: Wed Dec 26 17:08:48 UTC 2018
 stack: cflinuxfs2
 buildpack: https://github.com/cloudfoundry/go-buildpack.git
 ```
-Access the app at any of the ```urls`` e.g.  joker.cfapps.io 
+Access the app at any of the ```urls`` e.g.  http://joker.cfapps.io/ 
+
+##### Scale the app
+```
+cf scale joker -i 2
+cf app joker 
+```
+
+
 
 Modify the app and redeploy
 #### 4.2  Blue deployment
@@ -99,15 +112,24 @@ Modify the app and redeploy
 sed 's/white/blue/'  templates/layout.html.t > templates/layout.html
 cf push -n joker  
 ```
-Access the app at any of the ```urls`` e.g.  joker.cfapps.io  *when it becomes available*
+Access the app at any of the ```urls`` e.g.   http://joker.cfapps.io/   in several seconds *when it becomes available*
 
-Problem with blue dep is that while its updating the existing app becomes unavailable
-Lets try a green deployment
+Problem with blue deployment updates the existing app instances and while updating he existing instances are evicted.
+
+Lets try a blue-green deployment
 #### 4.3  Green deployment
 
+Lets deploy a new version of the app which will become a new app instance group.i.e. it wont overwrite the existing app instances 
 ```bash
 sed 's/white/green/'  templates/layout.html.t > templates/layout.html
 cf push green-joker -n green-joker  
+```
+See if you can access the app at http://green-joker.cfapps.io/
+
+Lets map the existing app URL to new app version
+```
+cf map-route green-joker cfapps.io -n joker
+
 ```
 
 
