@@ -6,3 +6,4 @@ applications:
     memory: 32M
     env:
       GOPACKAGENAME: go-app
+      LIGO_APP_VERSION: 932
