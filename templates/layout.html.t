@@ -151,7 +151,7 @@
             <tr>
               <td>{{$key}}</td>
               <td>
-                <span class="d-inline-block text-truncate" style="max-width: 700px;">
+                <span class="d-inline-block" style="max-width: 700px;">
                   {{$value}}
                 </span>
               </td>
