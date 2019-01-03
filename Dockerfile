@@ -11,14 +11,16 @@ RUN apk update && apk upgrade && \
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
 
 FROM alpine:latest  
+ENV SRC_DIR=/go/src/github.com/ajarv/go-web-docker
+ENV LISTEN_PORT=8080
+
 RUN apk update && apk upgrade && \
     apk --no-cache add ca-certificates curl && \
     mkdir -p /work 
 WORKDIR /work
-COPY --from=0 /go/src/github.com/ajarv/go-web-redis/main .
+COPY --from=0 ${SRC_DIR}/main .
 ADD ./static /work/static
 ADD ./templates /work/templates
 USER 1012
-ENV LISTEN_PORT=8080
 EXPOSE ${LISTEN_PORT}
 CMD ./main --port ${LISTEN_PORT}  
