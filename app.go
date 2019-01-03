@@ -78,7 +78,6 @@ func writeData(w http.ResponseWriter, r *http.Request, data map[string]interface
 	}
 
 	if strings.Contains(r.Header["Accept"][0], "json") {
-		data := getDebugData(r)
 		w.Header().Set("Content-Type", "application/json")
 		b, err := json.Marshal(&data)
 		if err != nil {
@@ -105,6 +104,46 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	writeData(w, r, data)
 }
 
+type formData struct {
+	LigoClientVersion string `json:"ligoClientVersion"`
+	Step              int    `json:"step"`
+}
+
+func workflowHandler(w http.ResponseWriter, r *http.Request) {
+	logRequest(r)
+	var form formData
+
+	decoder := json.NewDecoder(r.Body)
+	data := getDebugData(r)
+
+	data["Workflow"] = &form
+	defer writeData(w, r, data)
+
+	err := decoder.Decode(&form)
+	if err != nil {
+		data["warning"] = fmt.Sprintf("Unable to parse request %v", err)
+		return
+	}
+
+	switch {
+	case form.Step == 0:
+		form.Step = 1
+		form.LigoClientVersion = ligoServerVersion
+	case form.Step > 0 && form.LigoClientVersion != ligoServerVersion:
+		data["warning"] = fmt.Sprintf("Client v %v ,  Server v %v  version  mismatch", form.LigoClientVersion, ligoServerVersion)
+	case form.Step >= 3:
+		form.Step = 3
+		data["warning"] = fmt.Sprintf("Order already confirmed. no modifications possible")
+	default:
+		form.Step = form.Step + 1
+		if form.Step == 3 {
+			data["message"] = fmt.Sprintf("Order confirmed")
+
+		}
+	}
+
+}
+
 func killHandler(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		log.Printf("Dieing now .. good bye")
@@ -117,6 +156,7 @@ func killHandler(w http.ResponseWriter, r *http.Request) {
 	data["message"] = "Will terminate myself on your request in a few .. good bye !!"
 	writeData(w, r, data)
 }
+
 func redisHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r)
 	data := getDebugData(r)
@@ -141,6 +181,7 @@ var redisPort = getEnv("REDIS_SERVICE_PORT", "6379")
 var redisPassword = getEnv("REDIS_SERVICE_PASSWORD", "")
 var appVersion = getEnv("APP_VERSION", "1.0.0")
 var appName = getEnv("APP_NAME", "GO_WEB")
+var ligoServerVersion = getEnv("LIGO_APP_VERSION", "1946")
 
 func getEnv(key, fallback string) string {
 	if value, ok := os.LookupEnv(key); ok {
@@ -183,6 +224,7 @@ func main() {
 	r.HandleFunc("/", indexHandler)
 	r.HandleFunc("/die", killHandler)
 	r.HandleFunc("/redis", redisHandler)
+	r.HandleFunc("/workflow", workflowHandler)
 
 	srv := &http.Server{
 		Handler: r,
