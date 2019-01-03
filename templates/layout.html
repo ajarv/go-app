@@ -39,18 +39,18 @@
   <div class="jumbotron text-info">
     <h2 class="notimportant">All important things in life start with indigo</h2>
     <h4 class="text-right text-danger font-italic font-weight-light">
-        <span>--&gt;</span>
-        <span class="badge badge-secondary"> 
-          {{.AppName}} | {{.ApiVersion}}
-        </span>
-        <span class="badge badge-primary"> 
-          Host {{.Host}}
-        </span>
-        {{ if .Environment.CF_INSTANCE_INDEX }}
-        <span class="badge badge-info"> 
-          CF Instance {{.Environment.CF_INSTANCE_INDEX}}
-        </span>
-        {{end}}
+      <span>--&gt;</span>
+      <span class="badge badge-secondary">
+        {{.AppName}} | {{.ApiVersion}}
+      </span>
+      <span class="badge badge-primary">
+        Host {{.Host}}
+      </span>
+      {{ if .Environment.CF_INSTANCE_INDEX }}
+      <span class="badge badge-info">
+        CF Instance {{.Environment.CF_INSTANCE_INDEX}}
+      </span>
+      {{end}}
     </h4>
     {{ if .message }}
     <p class="alert alert-info">{{.message}}</p>
@@ -98,10 +98,13 @@
       </div>
     </div>
   </div>
-  <br/>
-
+  <br />
+  {{if .Workflow}}
   <div class="container">
-
+  </div>
+  {{ end }}
+  {{if .Request}}
+  <div class="container">
     <div class="card font-small">
       <div class="card-header">
         <h2>Request headers</h2>
@@ -130,10 +133,9 @@
       </div>
     </div>
   </div>
-
-  <br/>
+  {{ end }}
+  {{if .Environment}}
   <div class="container">
-    {{if .Environment}}
     <div class="card font-small">
       <div class="card-header">
         <h2>Environment Vars</h2>
@@ -161,8 +163,8 @@
         </table>
       </div>
     </div>
-    {{ end }}
   </div>
+  {{ end }}
   <footer class="page-footer font-small blue pt-4">
     <div class="footer-copyright text-center py-3">GitHub:
       <a href="https://github.com/ajarv/go-app-docker.git"> https://github.com/ajarv/go-app-docker.git</a>
