@@ -12,7 +12,7 @@ Features - Bootstrap4 / Go Template but bare bones and none necessary.
 ## 0. Clone Project
 
 ```
-git clone https://github.com/ajarv/go-app-docker.git
+git clone https://github.com/ajarv/go-app-docker.git ~/workspace/go-app-docker
 ```
 
 ## 1. Run on Local Host
