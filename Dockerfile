@@ -1,10 +1,13 @@
 FROM golang:1.7-alpine
-RUN mkdir -p /go/src/github.com/ajarv/go-web-redis/ 
-ADD . /go/src/github.com/ajarv/go-web-redis/
-WORKDIR /go/src/github.com/ajarv/go-web-redis/
+ENV SRC_DIR=/go/src/github.com/ajarv/go-web-docker
+
+RUN mkdir -p ${SRC_DIR}
+ADD . ${SRC_DIR}
+WORKDIR ${SRC_DIR}
 RUN apk update && apk upgrade && \
     apk add --no-cache bash git openssh && \
-    go get -d -v  github.com/go-redis/redis github.com/gorilla/mux gopkg.in/yaml.v2
+    go get -d -v  github.com/go-redis/redis github.com/gorilla/mux gopkg.in/yaml.v2 \
+    github.com/thedevsaddam/gojsonq
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
 
 
