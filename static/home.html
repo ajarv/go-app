@@ -58,10 +58,10 @@
     <!-- Main jumbotron for a primary marketing message or call to action -->
     <div class="jumbotron">
       <div class="container">
-        <h1 class="display-3">Customize your Ligo blocks project</h1>
-        <p>This is a template for a simple marketing or informational website. It includes a large callout called a
-          jumbotron and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
-        <p><a class="btn btn-primary btn-lg" href="#" role="button">Learn more &raquo;</a></p>
+        <h1 class="display-3">Your Leego blocks project</h1>
+        <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris
+        condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod.
+        Donec sed odio dui. <p><a class="btn btn-primary btn-lg" href="#" role="button">Learn more &raquo;</a></p>
       </div>
     </div>
     <br />
@@ -69,34 +69,29 @@
       <div id="app-3">
         <div class="card">
           <div class="card-body">
-            <h5 class="card-title">Create your parts assembly</h5>
-            <div class="input-group mb-3">
-              <div class="input-group-prepend">
-                <span class="input-group-text" id="basic-addon1">Client Version</span>
-              </div>
-              <input type="text" class="form-control" placeholder="ligoAppVersion" aria-label="ligoAppVersion"
-                aria-describedby="basic-addon1" v-model="ligoAppVersion" />
-            </div>
+            <h5 class="card-title">Customize parts assembly
+              <span v-if="ligoClientVersion!=''" class="chip">Client Version : <input type="text" v-model="ligoClientVersion" /></span>
+            </h5>
             <div class="stepper-horiz">
-              <div class="stepper {{step == 0 ? 'active' : step > 0 ? 'done' : 0}}">
+              <div class="stepper" v-bind:class="{ active: step == 0, done : step > 0}">
                 <div class="stepper-icon">
                   <i class="material-icons">check</i>
                 </div>
                 <span class="stepper-text">Begin</span>
               </div>
-              <div class="stepper {{step == 1 ? 'active' : step > 1 ? 'done' : 0}}">
+              <div class="stepper" v-bind:class="{ active: step == 1, done : step > 1}">
                 <div class="stepper-icon">
                   <span>2</span>
                 </div>
                 <span class="stepper-text">Step 2</span>
               </div>
-              <div class="stepper">
+              <div class="stepper" v-bind:class="{ active: step == 2, done : step > 2}">
                 <div class="stepper-icon">
                   <span>3</span>
                 </div>
                 <span class="stepper-text">Reviewed</span>
               </div>
-              <div class="stepper">
+              <div class="stepper" v-bind:class="{ active: step == 3, done : step > 3}">
                 <div class="stepper-icon">
                   <span>4</span>
                 </div>
@@ -105,15 +100,18 @@
             </div>
             <div>
               <button type="button" class="btn btn-secondary" @click="resetform">Reset</button>
-              <button type="button" class="btn btn-secondary" @click="nextstep">Next Step</button>
+              <button type="button" class="btn btn-secondary" @click="nextstep">{{nextStepLabel}}</button>
             </div>
             <br />
             <div>
+              <div class="alert alert-info" role="alert" v-if="infoMessage">
+                {{infoMessage}}
+              </div>
               <div class="alert alert-warning" role="alert" v-if="warningMessage">
                 {{warningMessage}}
               </div>
-              <div class="alert alert-info" role="alert" v-if="infoMessage">
-                {{infoMessage}}
+              <div class="alert alert-dark" role="alert" v-if="fatalMessage">
+                {{fatalMessage}}
               </div>
 
             </div>
@@ -170,27 +168,50 @@
 
   <!--Vue JS-->
   <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   <script>
     var app3 = new Vue({
       el: '#app-3',
       data: {
         seen: true,
-        ligoAppVersion: 2342,
+        ligoClientVersion: "",
         step: 0,
         warningMessage: null,
-        infoMessage:null
+        infoMessage: null,
+        fatalMessage: null,
+        nextStepLabel: "Next Step"
       },
       methods: {
         resetform: function (event) {
           // `this` inside methods points to the Vue instance
           this.step = 0;
           // `event` is the native DOM event
-          if (event) {
-            alert(event.target.tagName)
-          }
         },
-        nextstep: function(event){
-          if (this.step < 3) this.step++;
+        nextstep: function (event) {
+          var self = this
+          axios.post('/workflow', {
+            ligoClientVersion: this.ligoClientVersion,
+            step: this.step
+          })
+            .then(function (response) {
+              if (response.data.Workflow) {
+                var wf = response.data.Workflow
+                self.step = wf.step
+                self.ligoClientVersion = wf.ligoClientVersion
+                console.log(wf);
+
+              }
+              console.log(response.data.warning);
+              self.warningMessage = response.data.warning
+              self.nextStepLabel = response.data.warning ? "Retry" : "Next Step"
+              self.infoMessage = response.data.message
+            })
+            .catch(function (error) {
+              console.log(error);
+              self.fatalMessage = "" + error
+              self.nextStepLabel = "Retry"
+
+            });
         }
       }
     })
