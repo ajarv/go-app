@@ -10,7 +10,6 @@ RUN apk update && apk upgrade && \
     github.com/thedevsaddam/gojsonq
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
 
-
 FROM alpine:latest  
 RUN apk update && apk upgrade && \
     apk --no-cache add ca-certificates curl && \
