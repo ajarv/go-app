@@ -18,7 +18,7 @@
 
 <body>
   <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-    <a class="navbar-brand" href="#">Navbar</a>
+    <a class="navbar-brand" href="#">Leego Parts</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault"
       aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -60,8 +60,8 @@
       <div class="container">
         <h1 class="display-3">Your Leego blocks project</h1>
         <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris
-        condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod.
-        Donec sed odio dui. <p><a class="btn btn-primary btn-lg" href="#" role="button">Learn more &raquo;</a></p>
+          condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod.
+          Donec sed odio dui. <p><a class="btn btn-primary btn-lg" href="#" role="button">Learn more &raquo;</a></p>
       </div>
     </div>
     <br />
@@ -190,9 +190,9 @@
         nextstep: function (event) {
           var self = this
           axios.post('/workflow', {
-            ligoClientVersion: this.ligoClientVersion,
-            step: this.step
-          })
+              ligoClientVersion: this.ligoClientVersion,
+              step: this.step
+            })
             .then(function (response) {
               if (response.data.Workflow) {
                 var wf = response.data.Workflow

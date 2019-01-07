@@ -181,7 +181,7 @@ var redisPort = getEnv("REDIS_SERVICE_PORT", "6379")
 var redisPassword = getEnv("REDIS_SERVICE_PASSWORD", "")
 var appVersion = getEnv("APP_VERSION", "1.0.0")
 var appName = getEnv("APP_NAME", "GO_WEB")
-var ligoServerVersion = getEnv("LIGO_APP_VERSION", "1946")
+var ligoServerVersion = getEnv("LIGO_APP_VERSION", "Y2018")
 
 func getEnv(key, fallback string) string {
 	if value, ok := os.LookupEnv(key); ok {

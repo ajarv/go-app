@@ -2,24 +2,26 @@
 
 This is a sample web application developed in Go lang that can be run on various cloud /native platforms:
 
-* Native
-* Docker
-* OpenShift
-* Cloud Foundary
+- Native
+- Docker
+- OpenShift
+- Cloud Foundary
 
 Features - Bootstrap4 / Go Template but bare bones and none necessary.
 
 ## 0. Clone Project
 
 ```
-git clone https://github.com/ajarv/go-app-docker.git ~/workspace/go-app-docker
+git clone https://github.com/ajarv/go-app.git ~/workspace/go-app
 ```
 
 ## 1. Run on Local Host
 
 ```
-cd go-app-docker
-run app.go
+cd ~/workspace/go-app
+#Install Go dependencies
+go get github.com/thedevsaddam/gojsonq  github.com/go-redis/redis gopkg.in/yaml.v2 github.com/gorilla/mux
+go run main.go
 ```
 
 Access the app using curl
@@ -46,8 +48,8 @@ oc login ...
 oc new-project gosham-city --display-name "Gosham City"
 
 ```
-### 3.1 Deploy on OpenShift plain directly
 
+### 3.1 Deploy on OpenShift plain directly
 
 ```
 oc new-app <this git repo url>
@@ -59,10 +61,10 @@ oc new-app <this git repo url>
 oc process -f  kube-cfg/openshift-app-template.yaml -p APP_NAME=joker  | oc create -f -
 ```
 
-
 ## 4 Cloud Foundary
 
 ### Cloudfoundry access
+
 If you don't have access to cloudfoundry you can follow the tutorial [here](http://operator-workshop.cloudfoundry.org/agenda/) to provision it on a local linux box.
 OR
 you may get a trial account at [https://pivotal.io/platform](https://pivotal.io/platform)
@@ -72,14 +74,15 @@ cf login ..
 # See running apps
 cf apps
 ```
-#### 4.1  White deployment
+
+#### 4.1 White deployment
 
 ```
-cd go-app-docker
+cd go-app
 cf create-space gosham-city
 cf target -s "gosham-city"
 
-cf push -n joker  
+cf push -n joker
 
 ```
 
@@ -95,43 +98,45 @@ last uploaded: Wed Dec 26 17:08:48 UTC 2018
 stack: cflinuxfs2
 buildpack: https://github.com/cloudfoundry/go-buildpack.git
 ```
-Access the app at any of the ```urls`` e.g.  http://joker.cfapps.io/ 
+
+Access the app at any of the ``urls` e.g. http://joker.cfapps.io/
 
 ##### Scale the app
+
 ```
 cf scale joker -i 2
-cf app joker 
+cf app joker
 ```
 
-
-
 Modify the app and redeploy
-#### 4.2  Blue deployment
+
+#### 4.2 Blue deployment
 
 ```bash
 sed 's/white/blue/'  templates/layout.html.t > templates/layout.html
-cf push -n joker  
+cf push -n joker
 ```
-Access the app at any of the ```urls`` e.g.   http://joker.cfapps.io/   in several seconds *when it becomes available*
+
+Access the app at any of the ``urls` e.g. http://joker.cfapps.io/ in several seconds _when it becomes available_
 
 Problem with blue deployment updates the existing app instances and while updating he existing instances are evicted.
 
 Lets try a blue-green deployment
-#### 4.3  Green deployment
 
-Lets deploy a new version of the app which will become a new app instance group.i.e. it wont overwrite the existing app instances 
+#### 4.3 Green deployment
+
+Lets deploy a new version of the app which will become a new app instance group.i.e. it wont overwrite the existing app instances
+
 ```bash
 sed 's/white/green/'  templates/layout.html.t > templates/layout.html
-cf push green-joker -n green-joker  
+cf push green-joker -n green-joker
 ```
+
 See if you can access the app at http://green-joker.cfapps.io/
 
 Lets map the existing app URL to new app version
+
 ```
 cf map-route green-joker cfapps.io -n joker
 
 ```
-
-
-
-
