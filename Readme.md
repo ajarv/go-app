@@ -45,20 +45,23 @@ And you are logged into openshift with oc.
 
 ```
 oc login ...
-oc new-project gosham-city --display-name "Gosham City"
+oc new-project gotum-city --display-name "Gotum City"
 
 ```
 
 ### 3.1 Deploy on OpenShift plain directly
 
 ```
-oc new-app <this git repo url>
+oc new-app https://github.com/ajarv/go-app.git
 ```
 
 ### 3.2 Deploy on openshift using template
 
+A compiled image of this repo has been put on docker.io/m7dock/go-app
+Below openshift template uses that
+
 ```
-oc process -f  kube-cfg/openshift-app-template.yaml -p APP_NAME=joker  | oc create -f -
+oc process -f  kube-cfg/openshift-app-template.yaml -p APP_NAME=gcpd -p C1_NAME=batman -p C2_NAME=bruce  -pLBVIP=10.231.63.150  | oc create -f -
 ```
 
 ## 4 Cloud Foundary

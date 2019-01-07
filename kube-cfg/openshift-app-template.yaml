@@ -93,7 +93,7 @@ objects:
     spec:
       alternateBackends:
         - kind: Service
-          name: "${C2_NAME}-svc"
+          name: "${C1_NAME}-svc"
           weight: 67
       host: "${APP_NAME}.2capp.${LBVIP}.nip.io"
       port:

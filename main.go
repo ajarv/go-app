@@ -47,6 +47,7 @@ func getDebugData(req *http.Request) map[string]interface{} {
 	}
 
 	data := map[string]interface{}{
+		"AppColor":	  appColor,
 		"Host":       hostname,
 		"ApiVersion": appVersion,
 		"AppName":    appName,
@@ -61,6 +62,7 @@ func getDebugData(req *http.Request) map[string]interface{} {
 		})
 		data["Environment"] = environment
 	}
+
 
 	return data
 }
@@ -181,6 +183,8 @@ var redisPort = getEnv("REDIS_SERVICE_PORT", "6379")
 var redisPassword = getEnv("REDIS_SERVICE_PASSWORD", "")
 var appVersion = getEnv("APP_VERSION", "1.0.0")
 var appName = getEnv("APP_NAME", "GO_WEB")
+var appColor = getEnv("APP_COLOR", "black")
+
 var ligoServerVersion = getEnv("LIGO_APP_VERSION", "Y2018")
 
 func getEnv(key, fallback string) string {
