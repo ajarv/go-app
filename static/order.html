@@ -67,7 +67,7 @@
         <div class="card">
           <div class="card-body">
             <h5 class="card-title">Steps
-              <span v-if="ligoClientVersion!=''" class="chip">Client Version : <input type="text" v-model="ligoClientVersion" /></span>
+              <span v-if="apiVersion!=''" class="chip">Api version: <input type="text" v-model="apiVersion" /></span>
             </h5>
             <div class="stepper-horiz">
               <div class="stepper" v-bind:class="{ active: step == 0, done : step > 0}">
@@ -119,9 +119,11 @@
     <br />
 
   </main>
-
-  <footer class="container">
-    <p>&copy; Company 2017-2018</p>
+  <hr />
+  <footer class="page-footer font-small blue pt-4">
+    <div class="footer-copyright text-center py-3">GitHub:
+      <a href="https://github.com/ajarv/go-app-docker.git"> https://github.com/ajarv/go-app.git</a>
+    </div>
   </footer>
 
   <!-- Optional JavaScript -->
@@ -141,7 +143,7 @@
       el: '#app-3',
       data: {
         seen: true,
-        ligoClientVersion: "",
+        apiVersion: "",
         step: 0,
         warningMessage: null,
         infoMessage: null,
@@ -157,14 +159,14 @@
         nextstep: function (event) {
           var self = this
           axios.post('/workflow', {
-            ligoClientVersion: this.ligoClientVersion,
-            step: this.step
-          })
+              apiVersion: this.apiVersion,
+              step: this.step
+            })
             .then(function (response) {
               if (response.data.Workflow) {
                 var wf = response.data.Workflow
                 self.step = wf.step
-                self.ligoClientVersion = wf.ligoClientVersion
+                self.apiVersion = wf.apiVersion
                 console.log(wf);
 
               }

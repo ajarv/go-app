@@ -47,7 +47,7 @@ func getDebugData(req *http.Request) map[string]interface{} {
 	}
 
 	data := map[string]interface{}{
-		"AppColor":	  appColor,
+		"AppColor":   appColor,
 		"Host":       hostname,
 		"ApiVersion": appVersion,
 		"AppName":    appName,
@@ -62,7 +62,6 @@ func getDebugData(req *http.Request) map[string]interface{} {
 		})
 		data["Environment"] = environment
 	}
-
 
 	return data
 }
@@ -107,8 +106,8 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 type formData struct {
-	LigoClientVersion string `json:"ligoClientVersion"`
-	Step              int    `json:"step"`
+	APIVersion string `json:"apiVersion"`
+	Step       int    `json:"step"`
 }
 
 func workflowHandler(w http.ResponseWriter, r *http.Request) {
@@ -130,9 +129,9 @@ func workflowHandler(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case form.Step == 0:
 		form.Step = 1
-		form.LigoClientVersion = ligoServerVersion
-	case form.Step > 0 && form.LigoClientVersion != ligoServerVersion:
-		data["warning"] = fmt.Sprintf("Client v %v ,  Server v %v  version  mismatch", form.LigoClientVersion, ligoServerVersion)
+		form.APIVersion = appVersion
+	case form.Step > 0 && form.APIVersion != appVersion:
+		data["warning"] = fmt.Sprintf("Protocol Version Mismatch  Client - %v vs   Server - %v ", form.APIVersion, appVersion)
 	case form.Step >= 3:
 		form.Step = 3
 		data["warning"] = fmt.Sprintf("Order already confirmed. no modifications possible")
@@ -140,7 +139,6 @@ func workflowHandler(w http.ResponseWriter, r *http.Request) {
 		form.Step = form.Step + 1
 		if form.Step == 3 {
 			data["message"] = fmt.Sprintf("Order confirmed")
-
 		}
 	}
 
@@ -148,7 +146,7 @@ func workflowHandler(w http.ResponseWriter, r *http.Request) {
 
 func killHandler(w http.ResponseWriter, r *http.Request) {
 	defer func() {
-		log.Printf("Dieing now .. good bye")
+		log.Printf("Good Bye World !")
 		time.Sleep(4 * time.Second)
 		os.Exit(3)
 	}()
@@ -181,11 +179,9 @@ func redisHandler(w http.ResponseWriter, r *http.Request) {
 var redisHost = getEnv("REDIS_SERVICE_HOST", "localhost")
 var redisPort = getEnv("REDIS_SERVICE_PORT", "6379")
 var redisPassword = getEnv("REDIS_SERVICE_PASSWORD", "")
-var appVersion = getEnv("APP_VERSION", "1.0.0")
+var appVersion = getEnv("APP_VERSION", "v1.0.0")
 var appName = getEnv("APP_NAME", "GO_WEB")
 var appColor = getEnv("APP_COLOR", "black")
-
-var ligoServerVersion = getEnv("LIGO_APP_VERSION", "Y2018")
 
 func getEnv(key, fallback string) string {
 	if value, ok := os.LookupEnv(key); ok {
