@@ -179,6 +179,9 @@ func redisHandler(w http.ResponseWriter, r *http.Request) {
 var redisHost = getEnv("REDIS_SERVICE_HOST", "localhost")
 var redisPort = getEnv("REDIS_SERVICE_PORT", "6379")
 var redisPassword = getEnv("REDIS_SERVICE_PASSWORD", "")
+
+ 
+
 var appVersion = getEnv("APP_VERSION", "v1.0.0")
 var appName = getEnv("APP_NAME", "GO_WEB")
 var appColor = getEnv("APP_COLOR", "black")
@@ -201,7 +204,7 @@ func parseCFSettings() {
 		if v := gojsonq.New().JSONString(value).Find("rediscloud.[0].credentials.password"); v != nil {
 			redisPassword = fmt.Sprintf("%v", v)
 		}
-		// fmt.Printf("%v | %v | %v\n", redisHost, redisPort, redisPassword)
+		fmt.Printf("Redis host:%v | port:%v ", redisHost, redisPort)
 	}
 }
 
