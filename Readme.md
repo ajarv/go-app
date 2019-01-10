@@ -130,6 +130,10 @@ stack: cflinuxfs2
 
 Access the app at any of the `urls` e.g. http://orders.cfapps.io/
 
+##### For VM based CF installation Add domain name to the app
+
+cf map-route orders-app cf.<IP>.nip.io -n orders
+
 ##### Scale the app
 
 ```
@@ -137,16 +141,17 @@ cf scale orders-app -i 2
 cf app orders-app
 ```
 
-Modify the app and redeploy
+#### 4.2 Add Color to the App and change Version
 
-#### 4.2 Blue deployment
+Update an environment variable and redeploy the app
 
 ```bash
-sed 's/white/blue/'  templates/layout.html.t > templates/layout.html
-cf push -n batman
+cf set-env orders-app APP_COLOR blue
+cf set-env orders-app APP_VERSION v9.2.33
+cf restage orders-app
 ```
 
-Access the app at any of the ``urls` e.g. http://batman.cfapps.io/ in several seconds _when it becomes available_
+Access the app at any of the `urls` e.g. http://orders.cfapps.io/
 
 Problem with blue deployment updates the existing app instances and while updating he existing instances are evicted.
 
@@ -157,15 +162,23 @@ Lets try a blue-green deployment
 Lets deploy a new version of the app which will become a new app instance group.i.e. it wont overwrite the existing app instances
 
 ```bash
-sed 's/white/green/'  templates/layout.html.t > templates/layout.html
-cf push green-batman -n green-batman
+cf push orders-app-v1 -n orders-v1
 ```
 
-See if you can access the app at http://green-batman.cfapps.io/
-
-Lets map the existing app URL to new app version
+Update environment variables for new app to demo that its a new version
 
 ```
-cf map-route green-batman cfapps.io -n batman
+cf set-env orders-app-v1  APP_COLOR green
+cf set-env orders-app-v1  APP_VERSION v9.2.34
+cf restage orders-app-v1
+
+```
+
+See if you can access the app at http://orders-v1.cfapps.io/
+
+#### 4.4 Mapping Routes
+
+```
+cf map-route orders-app-v1 cfapps.io -n orders
 
 ```
