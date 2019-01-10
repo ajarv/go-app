@@ -1,4 +1,6 @@
 FROM golang:1.7-alpine
+USER 1012
+
 ENV SRC_DIR=/go/src/github.com/ajarv/go-app
 
 RUN mkdir -p ${SRC_DIR}
@@ -13,6 +15,5 @@ RUN apk update && apk upgrade && \
     github.com/thedevsaddam/gojsonq
 
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
-USER 1012
 EXPOSE 8080
 CMD ./main --port 8080  
