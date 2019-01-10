@@ -51,6 +51,7 @@ func getDebugData(req *http.Request) map[string]interface{} {
 		"Host":       hostname,
 		"ApiVersion": appVersion,
 		"AppName":    appName,
+		"ServerTime": time.Now().String(),
 		"Request":    map[string]interface{}{"Headers": req.Header},
 	}
 	if viewenv := req.URL.Query().Get("showenv"); viewenv != "" {

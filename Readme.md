@@ -72,54 +72,69 @@ If you don't have access to cloudfoundry you can follow the tutorial [here](http
 OR
 you may get a trial account at [https://pivotal.io/platform](https://pivotal.io/platform)
 
+### Preparing workspace
+
+Preparing Space
+
 ```
-cf login ..
+cf login -u admin -p $CF_ADMIN_PASSWORD
+cf create-org order-manager
+cf target -o "order-manager"
+cf create-space uat
+cf target -o "order-manager" -s "uat"
+```
+
+Configure Domain names for exposing the applicaitons from virtual box based CF installation
+
+```
+cf create-domain order-manager cf.< Virtual box host IP >.nip.io
+cf create-domain order-manager cf.< Your domain name suffix e.g    example.com  this needs  you to have a wildcard lb setup for this hostname.>
+```
+
+Configure Dev User
+
+```
+cf create-user marco polo
+cf set-space-role marco "order-manager" uat  SpaceDeveloper
+```
+
+### App Management
+
+```
+git clone https://github.com/ajarv/go-app.git ~/workspace/go-app
+cd ~/workspace/go-app
+
+cf login -u marco -p polo
 # See running apps
 cf apps
 ```
 
-Create an UAT lifecycle env on CF 
-```
-cf create-space uat
-cf target -s uat
-```
-
-
-#### 4.1 White deployment
-
-
-Push app which will result in 
-* instance name : orders-a0 
-* hostname prefix : orders-a0
-* Memory  : 32 MB ( fromo manifest.yaml)
+#### 4.1 Base deployment
 
 ```
-cd ~/workspace/go-app
-
-cf push orders-a0 -n  orders-a0 
+cf push orders-app -n orders
 
 ```
 
 ```bash
-Showing health and status for app go-app in org ../ space gosham-city as .......
+Showing health and status for app orders-app in org ajar_v / space uat as ajar_v@yahoo.com...
 OK
 
 requested state: started
 instances: 1/1
-usage: 1G x 1 instances
-urls: joker.cfapps.io
-last uploaded: Wed Dec 26 17:08:48 UTC 2018
+usage: 32M x 1 instances
+urls: orders.cfapps.io
+last uploaded: Thu Jan 10 21:52:20 UTC 2019
 stack: cflinuxfs2
-buildpack: https://github.com/cloudfoundry/go-buildpack.git
 ```
 
-Access the app at any of the ``urls` e.g. http://joker.cfapps.io/
+Access the app at any of the `urls` e.g. http://orders.cfapps.io/
 
 ##### Scale the app
 
 ```
-cf scale joker -i 2
-cf app joker
+cf scale orders-app -i 2
+cf app orders-app
 ```
 
 Modify the app and redeploy
@@ -128,10 +143,10 @@ Modify the app and redeploy
 
 ```bash
 sed 's/white/blue/'  templates/layout.html.t > templates/layout.html
-cf push -n joker
+cf push -n batman
 ```
 
-Access the app at any of the ``urls` e.g. http://joker.cfapps.io/ in several seconds _when it becomes available_
+Access the app at any of the ``urls` e.g. http://batman.cfapps.io/ in several seconds _when it becomes available_
 
 Problem with blue deployment updates the existing app instances and while updating he existing instances are evicted.
 
@@ -143,14 +158,14 @@ Lets deploy a new version of the app which will become a new app instance group.
 
 ```bash
 sed 's/white/green/'  templates/layout.html.t > templates/layout.html
-cf push green-joker -n green-joker
+cf push green-batman -n green-batman
 ```
 
-See if you can access the app at http://green-joker.cfapps.io/
+See if you can access the app at http://green-batman.cfapps.io/
 
 Lets map the existing app URL to new app version
 
 ```
-cf map-route green-joker cfapps.io -n joker
+cf map-route green-batman cfapps.io -n batman
 
 ```
