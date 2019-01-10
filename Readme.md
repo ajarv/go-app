@@ -78,14 +78,25 @@ cf login ..
 cf apps
 ```
 
+Create an UAT lifecycle env on CF 
+```
+cf create-space uat
+cf target -s uat
+```
+
+
 #### 4.1 White deployment
 
-```
-cd go-app
-cf create-space gosham-city
-cf target -s "gosham-city"
 
-cf push -n joker
+Push app which will result in 
+* instance name : orders-a0 
+* hostname prefix : orders-a0
+* Memory  : 32 MB ( fromo manifest.yaml)
+
+```
+cd ~/workspace/go-app
+
+cf push orders-a0 -n  orders-a0 
 
 ```
 
