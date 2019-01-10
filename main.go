@@ -145,7 +145,7 @@ func workflowHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func killHandler(w http.ResponseWriter, r *http.Request) {
-	defer func() {
+	go func() {
 		log.Printf("Good Bye World !")
 		time.Sleep(4 * time.Second)
 		os.Exit(3)
