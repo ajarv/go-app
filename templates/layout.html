@@ -81,12 +81,11 @@
     <div class="container jumbotron text-info">
       <h2 class="notimportant">App Diagnostics</h2>
       <h4 class="text-right text-danger font-italic font-weight-light">
-        <span>--&gt;</span>
+        <span class="badge badge-light">
+          T {{.ServerTime}}
+        </span>
         <span class="badge badge-secondary">
           {{.AppName}} | {{.ApiVersion}}
-        </span>
-        <span class="badge badge-black">
-          Time {{.ServerTime}}
         </span>
         <span class="badge badge-primary">
           Host {{.Host}}
