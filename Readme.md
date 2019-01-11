@@ -100,6 +100,7 @@ cf set-space-role marco "order-manager" uat  SpaceDeveloper
 
 ### App Management
 
+Login with a developer who has developer role
 ```
 git clone https://github.com/ajarv/go-app.git ~/workspace/go-app
 cd ~/workspace/go-app
