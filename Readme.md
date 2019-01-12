@@ -147,7 +147,7 @@ cf app orders-app
 Update an environment variable and redeploy the app
 
 ```bash
-cf set-env orders-app APP_COLOR blue
+cf set-env orders-app APP_COLOR green
 cf set-env orders-app APP_VERSION v9.2.33
 cf restage orders-app
 ```
@@ -169,7 +169,7 @@ cf push orders-app-v1 -n orders-v1
 Update environment variables for new app to demo that its a new version
 
 ```
-cf set-env orders-app-v1  APP_COLOR green
+cf set-env orders-app-v1  APP_COLOR blue
 cf set-env orders-app-v1  APP_VERSION v9.2.34
 cf restage orders-app-v1
 
