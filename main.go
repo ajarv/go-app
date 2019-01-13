@@ -15,7 +15,7 @@ import (
 
 	"github.com/go-redis/redis"
 	"github.com/gorilla/mux"
-	"github.com/thedevsaddam/gojsonq"
+	"github.com/yalp/jsonpath"
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -181,8 +181,6 @@ var redisHost = getEnv("REDIS_SERVICE_HOST", "localhost")
 var redisPort = getEnv("REDIS_SERVICE_PORT", "6379")
 var redisPassword = getEnv("REDIS_SERVICE_PASSWORD", "")
 
- 
-
 var appVersion = getEnv("APP_VERSION", "v1.0.0")
 var appName = getEnv("APP_NAME", "GO_WEB")
 var appColor = getEnv("APP_COLOR", "black")
@@ -196,15 +194,35 @@ func getEnv(key, fallback string) string {
 
 func parseCFSettings() {
 	if value, ok := os.LookupEnv("VCAP_SERVICES"); ok {
-		if v := gojsonq.New().JSONString(value).Find("rediscloud.[0].credentials.hostname"); v != nil {
-			redisHost = fmt.Sprintf("%v", v)
+		raw := []byte(value)
+		hostnameFilter, _ := jsonpath.Prepare("$..credentials.hostname")
+		portFilter, _ := jsonpath.Prepare("$..credentials.port")
+		passwordFilter, _ := jsonpath.Prepare("$..credentials.password")
+
+		var data interface{}
+		if err := json.Unmarshal(raw, &data); err != nil {
+			return
 		}
-		if v := gojsonq.New().JSONString(value).Find("rediscloud.[0].credentials.port"); v != nil {
-			redisPort = fmt.Sprintf("%v", v)
+		fmt.Println(data)
+		if v, err := hostnameFilter(data); err == nil {
+			redisHost = fmt.Sprintf("%v", v.([]interface{})[0])
 		}
-		if v := gojsonq.New().JSONString(value).Find("rediscloud.[0].credentials.password"); v != nil {
-			redisPassword = fmt.Sprintf("%v", v)
+		if v, err := portFilter(data); err == nil {
+			redisPort = fmt.Sprintf("%v", v.([]interface{})[0])
 		}
+		if v, err := passwordFilter(data); err == nil {
+			redisPassword = fmt.Sprintf("%v", v.([]interface{})[0])
+		}
+
+		// if v := gojsonq.New().JSONString(value).Find("rediscloud.[0].credentials.hostname"); v != nil {
+		// 	redisHost = fmt.Sprintf("%v", v)
+		// }
+		// if v := gojsonq.New().JSONString(value).Find("rediscloud.[0].credentials.port"); v != nil {
+		// 	redisPort = fmt.Sprintf("%v", v)
+		// }
+		// if v := gojsonq.New().JSONString(value).Find("rediscloud.[0].credentials.password"); v != nil {
+		// 	redisPassword = fmt.Sprintf("%v", v)
+		// }
 		fmt.Printf("Redis host:%v | port:%v ", redisHost, redisPort)
 	}
 }
