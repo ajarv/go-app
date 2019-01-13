@@ -203,15 +203,20 @@ func parseCFSettings() {
 		if err := json.Unmarshal(raw, &data); err != nil {
 			return
 		}
-		fmt.Println(data)
 		if v, err := hostnameFilter(data); err == nil {
-			redisHost = fmt.Sprintf("%v", v.([]interface{})[0])
+			if a := v.([]interface{}); len(a) > 0 {
+				redisHost = fmt.Sprintf("%v", a[0])
+			}
 		}
 		if v, err := portFilter(data); err == nil {
-			redisPort = fmt.Sprintf("%v", v.([]interface{})[0])
+			if a := v.([]interface{}); len(a) > 0 {
+				redisPort = fmt.Sprintf("%v", a[0])
+			}
 		}
 		if v, err := passwordFilter(data); err == nil {
-			redisPassword = fmt.Sprintf("%v", v.([]interface{})[0])
+			if a := v.([]interface{}); len(a) > 0 {
+				redisPassword = fmt.Sprintf("%v", a[0])
+			}
 		}
 
 		// if v := gojsonq.New().JSONString(value).Find("rediscloud.[0].credentials.hostname"); v != nil {
