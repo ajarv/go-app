@@ -20,7 +20,7 @@ git clone https://github.com/ajarv/go-app.git ~/workspace/go-app
 ```
 cd ~/workspace/go-app
 #Install Go dependencies
-go get github.com/thedevsaddam/gojsonq  github.com/go-redis/redis gopkg.in/yaml.v2 github.com/gorilla/mux
+go get github.com/thedevsaddam/gojsonq  github.com/go-redis/redis gopkg.in/yaml.v2 github.com/gorilla/mux github.com/yalp/jsonpath
 go run main.go
 ```
 

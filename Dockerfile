@@ -10,7 +10,8 @@ RUN apk update && apk upgrade && \
     github.com/go-redis/redis \
     github.com/gorilla/mux \
     gopkg.in/yaml.v2 \
-    github.com/thedevsaddam/gojsonq
+    github.com/thedevsaddam/gojsonq \
+    github.com/yalp/jsonpath
 
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
 
