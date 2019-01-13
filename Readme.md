@@ -183,3 +183,7 @@ See if you can access the app at http://orders-v1.cfapps.io/
 cf map-route orders-app-v1 cfapps.io -n orders
 
 ```
+
+
+---
+Enabled automatic build integration with m7dock/go-app
