@@ -1,6 +1,5 @@
 FROM golang:1.7-alpine
 USER 1012
-RUN mkdir -p /tmp/go-app
 ADD . /tmp/go-app
 WORKDIR /tmp/go-app
 RUN apk update && apk upgrade && \
