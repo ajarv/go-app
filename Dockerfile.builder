@@ -1,8 +1,9 @@
 FROM golang:1.7-alpine
+ENV SRC_DIR=/go/src/github.com/ajarv/go-app
 
-RUN mkdir -p /tmp/go-app
-ADD . /tmp/go-app
-WORKDIR /tmp/go-app
+RUN mkdir -p ${SRC_DIR}
+ADD . ${SRC_DIR}
+WORKDIR ${SRC_DIR}
 RUN apk update && apk upgrade && \
     apk add --no-cache bash git openssh && \
     go get -d -v  \
@@ -22,9 +23,9 @@ RUN apk update && apk upgrade && \
     apk --no-cache add ca-certificates curl && \
     mkdir -p /work 
 WORKDIR /work
-COPY --from=0 /tmp/go-app/main .
+COPY --from=0 ${SRC_DIR}/main .
 ADD ./static /work/static
 ADD ./templates /work/templates
 USER 1012
-EXPOSE 8080
-CMD ./main --port 8080  
+EXPOSE ${LISTEN_PORT}
+CMD ./main --port ${LISTEN_PORT}  
