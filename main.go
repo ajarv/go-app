@@ -232,6 +232,7 @@ func parseCFSettings() {
 	}
 }
 
+
 func main() {
 	var host string
 	var dir string
