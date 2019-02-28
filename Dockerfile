@@ -18,6 +18,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
 FROM alpine:latest  
 ENV SRC_DIR=/go/src/github.com/ajarv/go-app
 ENV LISTEN_PORT=8080
+ENV LISTEN_SSL=f
 
 RUN apk update && apk upgrade && \
     apk --no-cache add ca-certificates curl && \
@@ -28,4 +29,4 @@ ADD ./static /work/static
 ADD ./templates /work/templates
 USER 1012
 EXPOSE ${LISTEN_PORT}
-CMD ./main --port ${LISTEN_PORT}  
+CMD ./main -port ${LISTEN_PORT}  -secure=${LISTEN_SSL}

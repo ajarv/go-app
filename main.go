@@ -255,7 +255,7 @@ func main() {
 	r.HandleFunc("/redis", redisHandler)
 	r.HandleFunc("/workflow", workflowHandler)
 
-	if ! strings.HasSuffix(port, "443"){
+	if secure && ! strings.HasSuffix(port, "443"){
 		port = "8443"
 	}
 
