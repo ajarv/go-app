@@ -236,10 +236,12 @@ func main() {
 	var host string
 	var dir string
 	var port string
+	var secure bool
 
 	flag.StringVar(&dir, "dir", ".", "the directory to serve files from. Defaults to the current dir")
 	flag.StringVar(&host, "host", "0.0.0.0", "listen host")
 	flag.StringVar(&port, "port", "8080", "listen port")
+	flag.BoolVar(&secure,"secure",false,"ssl listener")
 	flag.Parse()
 
 	parseCFSettings()
@@ -253,6 +255,10 @@ func main() {
 	r.HandleFunc("/redis", redisHandler)
 	r.HandleFunc("/workflow", workflowHandler)
 
+	if ! strings.HasSuffix(port, "443"){
+		port = "8443"
+	}
+
 	srv := &http.Server{
 		Handler: r,
 		Addr:    host + ":" + port,
@@ -260,6 +266,13 @@ func main() {
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
-	fmt.Fprintf(os.Stdout, "Server listening %s:%s\n", host, port)
+
+	if secure {
+		fmt.Fprintf(os.Stdout, "Server listening HTTPS %s:%s\n", host, port)
+		log.Fatal(srv.ListenAndServeTLS("server.cer","server.key"))
+	}
+
+	fmt.Fprintf(os.Stdout, "Server listening HTTP %s:%s\n", host, port)
 	log.Fatal(srv.ListenAndServe())
 }
+
