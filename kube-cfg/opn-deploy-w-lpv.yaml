@@ -1,0 +1,89 @@
+apiVersion: v1
+items:
+  - apiVersion: apps/v1
+    kind: StatefulSet
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftNewApp
+      creationTimestamp: null
+      labels:
+        app: go-app
+      name: go-app
+    spec:
+      replicas: 3
+      selector:
+        app: go-app
+        deploymentconfig: go-app
+        matchLabels:
+          app: go-app
+      strategy:
+        resources: {}
+      template:
+        metadata:
+          annotations:
+            openshift.io/generated-by: OpenShiftNewApp
+          creationTimestamp: null
+          labels:
+            app: go-app
+        spec:
+          containers:
+            - image: m7dock/go-app
+              name: go-app
+              ports:
+                - containerPort: 8080
+                  protocol: TCP
+              resources: {}
+              volumeMounts:
+                - name: lpv-test
+                  mountPath: /data
+          volumes:
+            - name: lpv-test
+              persistentVolumeClaim:
+                claimName: lpv-test-claim
+      test: false
+      triggers:
+        - type: ConfigChange
+        - imageChangeParams:
+            automatic: true
+            containerNames:
+              - go-app
+            from:
+              kind: ImageStreamTag
+              name: go-app:latest
+          type: ImageChange
+    status:
+      availableReplicas: 0
+      latestVersion: 0
+      observedGeneration: 0
+      replicas: 0
+      unavailableReplicas: 0
+      updatedReplicas: 0
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: lpv-test-claim
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      storageClassName: local-ssd
+      resources:
+        requests:
+          storage: 1Gi
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        app: go-app
+      name: go-app
+    spec:
+      ports:
+        - name: 8080-tcp
+          port: 8080
+          protocol: TCP
+          targetPort: 8080
+      selector:
+        app: go-app
+    status:
+      loadBalancer: {}
+kind: List
+metadata: {}
