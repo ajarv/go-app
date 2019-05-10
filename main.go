@@ -189,6 +189,7 @@ func writeData(w http.ResponseWriter, r *http.Request, data map[string]interface
 		w.Write([]byte(`{"result":"Error"}`))
 		return
 	}
+	
 	w.Write(b)
 
 }
