@@ -160,31 +160,35 @@ func getDebugData(req *http.Request) map[string]interface{} {
 var tmpl = template.Must(template.ParseFiles("templates/layout.html"))
 
 func writeData(w http.ResponseWriter, r *http.Request, data map[string]interface{}) {
-	if strings.Contains(r.Header["Accept"][0], "html") {
-		w.Header().Set("Content-Type", "text/html")
-		err := tmpl.Execute(w, data)
-		if err != nil {
-			w.Write([]byte(`{"result":"Error"}`))
-		}
-		return
-	}
-
-	if strings.Contains(r.Header["Accept"][0], "json") {
-		w.Header().Set("Content-Type", "application/json")
-		b, err := json.Marshal(&data)
-		if err != nil {
-			w.Write([]byte(`{"result":"Error"}`))
+	if len(r.Header["Accept"]) > 0 {
+		if strings.Contains(r.Header["Accept"][0], "html") {
+			w.Header().Set("Content-Type", "text/html")
+			err := tmpl.Execute(w, data)
+			if err != nil {
+				w.Write([]byte(`{"result":"Error"}`))
+			}
 			return
 		}
-		w.Write(b)
-		return
-	}
 
-	w.Header().Set("Content-Type", "application/yaml")
-	b, err := yaml.Marshal(&data)
-	if err != nil {
-		w.Write([]byte(`{"result":"Error"}`))
-		return
+		if strings.Contains(r.Header["Accept"][0], "json") {
+			w.Header().Set("Content-Type", "application/json")
+			b, err := json.Marshal(&data)
+			if err != nil {
+				w.Write([]byte(`{"result":"Error"}`))
+				return
+			}
+			w.Write(b)
+			return
+		}
+
+		if strings.Contains(r.Header["Accept"][0], "yaml") {
+			w.Header().Set("Content-Type", "application/yaml")
+			b, err := yaml.Marshal(&data)
+			if err != nil {
+				w.Write([]byte(`{"result":"Error"}`))
+				return
+			}
+		}
 	}
 	w.Write(b)
 
