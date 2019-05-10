@@ -357,7 +357,9 @@ func main() {
 	r.HandleFunc("/redis", redisHandler)
 	r.HandleFunc("/healthz", healthz)
 	r.HandleFunc("/workflow", workflowHandler)
-	r.PathPrefix("/").Handler(indexHandler)
+	r.HandleFunc("/", indexHandler)
+	
+	
 
 	if secure {
 		if  !strings.HasSuffix(port, "443") {
