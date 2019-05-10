@@ -352,7 +352,7 @@ func main() {
 	r.HandleFunc("/", indexHandler)
 	r.HandleFunc("/die", killHandler)
 	r.HandleFunc("/redis", redisHandler)
-	r.HandleFunc("/healtz", healthz)
+	r.HandleFunc("/healthz", healthz)
 	r.HandleFunc("/workflow", workflowHandler)
 
 	
