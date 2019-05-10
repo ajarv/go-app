@@ -189,7 +189,7 @@ func writeData(w http.ResponseWriter, r *http.Request, data map[string]interface
 		w.Write([]byte(`{"result":"Error"}`))
 		return
 	}
-	
+
 	w.Write(b)
 
 }
@@ -353,13 +353,11 @@ func main() {
 	// This will serve files under http://localhost:8000/static/<filename>
 	r.PathPrefix("/static/").Handler(http.FileServer(http.Dir(dir)))
 	// r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(dir))))
-	r.HandleFunc("/", indexHandler)
 	r.HandleFunc("/die", killHandler)
 	r.HandleFunc("/redis", redisHandler)
 	r.HandleFunc("/healthz", healthz)
 	r.HandleFunc("/workflow", workflowHandler)
-
-	
+	r.PathPrefix("/").Handler(indexHandler)
 
 	if secure {
 		if  !strings.HasSuffix(port, "443") {
