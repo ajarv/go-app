@@ -181,14 +181,13 @@ func writeData(w http.ResponseWriter, r *http.Request, data map[string]interface
 			return
 		}
 
-		if strings.Contains(r.Header["Accept"][0], "yaml") {
-			w.Header().Set("Content-Type", "application/yaml")
-			b, err := yaml.Marshal(&data)
-			if err != nil {
-				w.Write([]byte(`{"result":"Error"}`))
-				return
-			}
-		}
+	}
+	
+	w.Header().Set("Content-Type", "application/yaml")
+	b, err := yaml.Marshal(&data)
+	if err != nil {
+		w.Write([]byte(`{"result":"Error"}`))
+		return
 	}
 	w.Write(b)
 
