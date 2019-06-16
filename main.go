@@ -141,6 +141,7 @@ func getDebugData(req *http.Request) map[string]interface{} {
 		"Host":       hostname,
 		"ApiVersion": appVersion,
 		"AppName":    appName,
+		"AppInfo":    appInfo,
 		"ServerTime": time.Now().Format("2006-01-02 15:04:05"),
 		"Request":    map[string]interface{}{"Headers": req.Header},
 	}
@@ -243,7 +244,6 @@ func apiInfoHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r)
 	data := getDebugData(r)
 	data["info"] = appInfo
-
 	writeData(w, r, data)
 }
 
@@ -291,7 +291,7 @@ var redisPassword = getEnv("REDIS_SERVICE_PASSWORD", "")
 var appVersion = getEnv("APP_VERSION", "v1.0.0")
 var appName = getEnv("APP_NAME", "GO_WEB")
 var appColor = getEnv("APP_COLOR", "black")
-var appInfo = getEnv("APP_INFO", "{}")
+var appInfo = getEnv("APP_INFO", "-")
 
 func getEnv(key, fallback string) string {
 	if value, ok := os.LookupEnv(key); ok {
