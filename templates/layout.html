@@ -61,8 +61,6 @@
             aria-haspopup="true" aria-expanded="false">Dropdown</a>
           <div class="dropdown-menu" aria-labelledby="dropdown01">
             <a class="dropdown-item" href="#">Action</a>
-            <a class="dropdown-item" href="#">Another action</a>
-            <a class="dropdown-item" href="#">Something else here</a>
           </div>
         </li>
       </ul>
@@ -82,10 +80,12 @@
       <h2 class="notimportant">App Diagnostics</h2>
       <h4 class="text-right text-danger font-italic font-weight-light">
         <span class="badge badge-light">
-          T {{.ServerTime}}
+          Time {{.ServerTime}}
         </span>
         <span class="badge badge-secondary">
-          {{.AppName}} | {{.ApiVersion}}
+          {{.AppName}} | 
+          {{.ApiVersion}} |
+          {{.AppInfo}}
         </span>
         <span class="badge badge-primary">
           Host {{.Host}}
