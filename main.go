@@ -247,6 +247,14 @@ func apiInfoHandler(w http.ResponseWriter, r *http.Request) {
 	writeData(w, r, data)
 }
 
+func apiResourceHandler(w http.ResponseWriter, r *http.Request) {
+	logRequest(r)
+	vars := mux.Vars(r)
+	data := getDebugData(r)
+	data["resource"] = vars
+	writeData(w, r, data)
+}
+
 func killHandler(w http.ResponseWriter, r *http.Request) {
 	go func() {
 		log.Printf("Good Bye World !")
@@ -364,6 +372,8 @@ func main() {
 	// r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(dir))))
 	r.HandleFunc("/die", killHandler)
 	r.HandleFunc("/api/v1/info", apiInfoHandler)
+	r.HandleFunc("/api/v2/{type}", apiResourceHandler)
+	r.HandleFunc("/api/v2/{type}/{id}", apiResourceHandler)
 	r.HandleFunc("/redis", redisHandler)
 	r.HandleFunc("/healthz", healthz)
 	r.HandleFunc("/workflow", workflowHandler)
