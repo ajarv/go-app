@@ -182,7 +182,7 @@ func writeData(w http.ResponseWriter, r *http.Request, data map[string]interface
 		}
 
 	}
-	
+
 	w.Header().Set("Content-Type", "application/yaml")
 	b, err := yaml.Marshal(&data)
 	if err != nil {
@@ -239,6 +239,14 @@ func workflowHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func apiInfoHandler(w http.ResponseWriter, r *http.Request) {
+	logRequest(r)
+	data := getDebugData(r)
+	data["info"] = appInfo
+
+	writeData(w, r, data)
+}
+
 func killHandler(w http.ResponseWriter, r *http.Request) {
 	go func() {
 		log.Printf("Good Bye World !")
@@ -283,6 +291,7 @@ var redisPassword = getEnv("REDIS_SERVICE_PASSWORD", "")
 var appVersion = getEnv("APP_VERSION", "v1.0.0")
 var appName = getEnv("APP_NAME", "GO_WEB")
 var appColor = getEnv("APP_COLOR", "black")
+var appInfo = getEnv("APP_INFO", "{}")
 
 func getEnv(key, fallback string) string {
 	if value, ok := os.LookupEnv(key); ok {
@@ -354,15 +363,14 @@ func main() {
 	r.PathPrefix("/static/").Handler(http.FileServer(http.Dir(dir)))
 	// r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(dir))))
 	r.HandleFunc("/die", killHandler)
+	r.HandleFunc("/api/v1/info", apiInfoHandler)
 	r.HandleFunc("/redis", redisHandler)
 	r.HandleFunc("/healthz", healthz)
 	r.HandleFunc("/workflow", workflowHandler)
 	r.HandleFunc("/", indexHandler)
-	
-	
 
 	if secure {
-		if  !strings.HasSuffix(port, "443") {
+		if !strings.HasSuffix(port, "443") {
 			port = "8443"
 		}
 		if serverkey == "" {
@@ -372,7 +380,7 @@ func main() {
 			}
 			embeddedTLSserver.Server.Handler = r
 			fmt.Fprintf(os.Stdout, "Server listening HTTPS %s:%s with embedded Cert\n", host, port)
-			log.Fatal(embeddedTLSserver.ListenAndServeTLS(host+":"+port))
+			log.Fatal(embeddedTLSserver.ListenAndServeTLS(host + ":" + port))
 			return
 		}
 
@@ -383,11 +391,10 @@ func main() {
 			WriteTimeout: 15 * time.Second,
 			ReadTimeout:  15 * time.Second,
 		}
-		fmt.Fprintf(os.Stdout, "Server listening HTTPS %s:%s with cert from %s\n", host, port,serverCert)
-		log.Fatal(srv.ListenAndServeTLS(serverCert,serverkey))
+		fmt.Fprintf(os.Stdout, "Server listening HTTPS %s:%s with cert from %s\n", host, port, serverCert)
+		log.Fatal(srv.ListenAndServeTLS(serverCert, serverkey))
 		return
 	}
-
 
 	srv := &http.Server{
 		Handler: r,
