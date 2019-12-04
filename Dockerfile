@@ -21,7 +21,7 @@ ENV LISTEN_PORT=8080
 ENV LISTEN_SSL=f
 
 RUN apk update && apk upgrade && \
-    apk --no-cache add ca-certificates curl && \
+    apk --no-cache add ca-certificates curl bash && \
     mkdir -p /work 
 WORKDIR /work
 COPY --from=0 ${SRC_DIR}/main .
