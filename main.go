@@ -15,7 +15,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-redis/redis/v7"
+	// "github.com/go-redis/redis"
 	"github.com/gorilla/mux"
 	"github.com/yalp/jsonpath"
 	yaml "gopkg.in/yaml.v2"
@@ -268,24 +268,24 @@ func killHandler(w http.ResponseWriter, r *http.Request) {
 	writeData(w, r, data)
 }
 
-func redisHandler(w http.ResponseWriter, r *http.Request) {
-	logRequest(r)
-	data := getDebugData(r)
-	redisdb := redis.NewClient(&redis.Options{
-		Addr:        redisHost + ":" + redisPort,
-		Password:    redisPassword, // no password set
-		DB:          0,             // use default DB
-		DialTimeout: time.Second,
-	})
+// func redisHandler(w http.ResponseWriter, r *http.Request) {
+// 	logRequest(r)
+// 	data := getDebugData(r)
+// 	redisdb := redis.NewClient(&redis.Options{
+// 		Addr:        redisHost + ":" + redisPort,
+// 		Password:    redisPassword, // no password set
+// 		DB:          0,             // use default DB
+// 		DialTimeout: time.Second,
+// 	})
 
-	count, err := redisdb.Incr("hits.go").Result()
-	if err != nil {
-		data["warning"] = fmt.Sprintf("Unable to connect redis server at %s:%s", redisHost, redisPort)
-	} else {
-		data["message"] = fmt.Sprintf("Hit Count from Redis key hits.go : %v", count)
-	}
-	writeData(w, r, data)
-}
+// 	count, err := redisdb.Incr("hits.go").Result()
+// 	if err != nil {
+// 		data["warning"] = fmt.Sprintf("Unable to connect redis server at %s:%s", redisHost, redisPort)
+// 	} else {
+// 		data["message"] = fmt.Sprintf("Hit Count from Redis key hits.go : %v", count)
+// 	}
+// 	writeData(w, r, data)
+// }
 func healthz(w http.ResponseWriter, r *http.Request) {
 	logRequest(r)
 	message := "ok"
@@ -374,7 +374,7 @@ func main() {
 	r.HandleFunc("/api/v1/info", apiInfoHandler)
 	r.HandleFunc("/api/v2/{type}", apiResourceHandler)
 	r.HandleFunc("/api/v2/{type}/{id}", apiResourceHandler)
-	r.HandleFunc("/redis", redisHandler)
+	// r.HandleFunc("/redis", redisHandler)
 	r.HandleFunc("/healthz", healthz)
 	r.HandleFunc("/workflow", workflowHandler)
 	r.HandleFunc("/", indexHandler)
