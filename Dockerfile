@@ -7,7 +7,7 @@ WORKDIR ${SRC_DIR}
 RUN apk update && apk upgrade && \
     apk add --no-cache bash git openssh && \
     go get -d -v  \
-    github.com/go-redis/redis \
+    github.com/go-redis/redis/v7 \
     github.com/gorilla/mux \
     gopkg.in/yaml.v2 \
     github.com/thedevsaddam/gojsonq \

@@ -15,7 +15,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v7"
 	"github.com/gorilla/mux"
 	"github.com/yalp/jsonpath"
 	yaml "gopkg.in/yaml.v2"
