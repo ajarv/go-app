@@ -28,5 +28,6 @@ COPY --from=0 ${SRC_DIR}/main .
 ADD ./static /work/static
 ADD ./templates /work/templates
 USER 1012
-EXPOSE ${LISTEN_PORT}
+EXPOSE 8080
+EXPOSE 8443
 CMD ./main -port ${LISTEN_PORT}  -secure=${LISTEN_SSL}
