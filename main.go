@@ -349,6 +349,7 @@ func parseCFSettings() {
 }
 
 func main() {
+	var appAdmin string
 	var host string
 	var dir string
 	var port string
@@ -356,6 +357,7 @@ func main() {
 	var serverkey string
 	var serverCert string
 
+	flag.StringVar(&appAdmin, "admin", "raviraaj", "Dummy var to signify the admin user")
 	flag.StringVar(&dir, "dir", ".", "the directory to serve files from. Defaults to the current dir")
 	flag.StringVar(&host, "host", "0.0.0.0", "listen host")
 	flag.StringVar(&port, "port", "8080", "listen port")
@@ -413,7 +415,7 @@ func main() {
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
-
+	fmt.Fprintf(os.Stdout, "Admin User :%s\n",appAdmin)
 	fmt.Fprintf(os.Stdout, "Server listening HTTP %s:%s\n", host, port)
 	log.Fatal(srv.ListenAndServe())
 }
