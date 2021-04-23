@@ -1,17 +1,11 @@
-FROM golang:1.7-alpine
+FROM golang:alpine
 ENV SRC_DIR=/go/src/github.com/ajarv/go-app
 
 RUN mkdir -p ${SRC_DIR}
 ADD . ${SRC_DIR}
 WORKDIR ${SRC_DIR}
 RUN apk update && apk upgrade && \
-    apk add --no-cache bash git openssh && \
-    go get -d -v  \
-    # github.com/go-redis/redis/v7 \
-    github.com/gorilla/mux \
-    gopkg.in/yaml.v2 \
-    github.com/thedevsaddam/gojsonq \
-    github.com/yalp/jsonpath
+    apk add --no-cache bash git openssh 
 
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
 
