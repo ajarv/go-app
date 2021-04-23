@@ -1,10 +1,8 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
-	"html/template"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -16,114 +14,9 @@ import (
 
 	"github.com/ajarv/go-app/api"
 	"github.com/ajarv/go-app/tlsserver"
+	"github.com/ajarv/go-app/workflow"
 	"github.com/gorilla/mux"
-	yaml "gopkg.in/yaml.v2"
 )
-
-func logRequest(req *http.Request) {
-	requestDump, err := httputil.DumpRequest(req, true)
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Printf("--Request :\n%v\n------------\n", string(requestDump))
-}
-
-var tmpl = template.Must(template.ParseFiles("templates/layout.html"))
-
-func writeData(w http.ResponseWriter, r *http.Request, data map[string]interface{}) {
-	if len(r.Header["Accept"]) > 0 {
-		if strings.Contains(r.Header["Accept"][0], "html") {
-			w.Header().Set("Content-Type", "text/html")
-			err := tmpl.Execute(w, data)
-			if err != nil {
-				w.Write([]byte(`{"result":"Error"}`))
-			}
-			return
-		}
-
-		if strings.Contains(r.Header["Accept"][0], "json") {
-			w.Header().Set("Content-Type", "application/json")
-			b, err := json.Marshal(&data)
-			if err != nil {
-				w.Write([]byte(`{"result":"Error"}`))
-				return
-			}
-			w.Write(b)
-			return
-		}
-
-	}
-
-	w.Header().Set("Content-Type", "application/yaml")
-	b, err := yaml.Marshal(&data)
-	if err != nil {
-		w.Write([]byte(`{"result":"Error"}`))
-		return
-	}
-
-	w.Write(b)
-
-}
-
-func indexHandler(w http.ResponseWriter, r *http.Request) {
-	logRequest(r)
-	data := api.GetDebugData(r)
-	writeData(w, r, data)
-}
-
-type formData struct {
-	APIVersion string `json:"apiVersion"`
-	Step       int    `json:"step"`
-}
-
-func workflowHandler(w http.ResponseWriter, r *http.Request) {
-	logRequest(r)
-	var form formData
-
-	decoder := json.NewDecoder(r.Body)
-	data := api.GetDebugData(r)
-
-	data["Workflow"] = &form
-	defer writeData(w, r, data)
-
-	err := decoder.Decode(&form)
-	if err != nil {
-		data["warning"] = fmt.Sprintf("Unable to parse request %v", err)
-		return
-	}
-
-	switch {
-	case form.Step == 0:
-		form.Step = 1
-		form.APIVersion = appVersion
-	case form.Step > 0 && form.APIVersion != appVersion:
-		data["warning"] = fmt.Sprintf("Protocol Version Mismatch  Client - %v vs   Server - %v ", form.APIVersion, appVersion)
-	case form.Step >= 3:
-		form.Step = 3
-		data["warning"] = fmt.Sprintf("Order already confirmed. no modifications possible")
-	default:
-		form.Step = form.Step + 1
-		if form.Step == 3 {
-			data["message"] = fmt.Sprintf("Order confirmed")
-		}
-	}
-
-}
-
-func apiInfoHandler(w http.ResponseWriter, r *http.Request) {
-	logRequest(r)
-	data := api.GetDebugData(r)
-	data["info"] = appInfo
-	writeData(w, r, data)
-}
-
-func apiResourceHandler(w http.ResponseWriter, r *http.Request) {
-	logRequest(r)
-	vars := mux.Vars(r)
-	data := api.GetDebugData(r)
-	data["resource"] = vars
-	writeData(w, r, data)
-}
 
 func killHandler(w http.ResponseWriter, r *http.Request) {
 	go func() {
@@ -132,28 +25,14 @@ func killHandler(w http.ResponseWriter, r *http.Request) {
 		os.Exit(3)
 	}()
 
-	logRequest(r)
 	data := api.GetDebugData(r)
+	defer api.WriteResponse(w, r, data)
 	data["message"] = "Will terminate myself on your request in a few .. good bye !!"
-	writeData(w, r, data)
 }
 
 func healthz(w http.ResponseWriter, r *http.Request) {
-	logRequest(r)
 	message := "ok"
 	w.Write([]byte(message))
-}
-
-var appVersion = getEnv("APP_VERSION", "v1.0.0")
-var appName = getEnv("APP_NAME", "GO_WEB")
-var appColor = getEnv("APP_COLOR", "black")
-var appInfo = getEnv("APP_INFO", "-")
-
-func getEnv(key, fallback string) string {
-	if value, ok := os.LookupEnv(key); ok {
-		return value
-	}
-	return fallback
 }
 
 func registerRoutes(dir string) *mux.Router {
@@ -162,14 +41,27 @@ func registerRoutes(dir string) *mux.Router {
 	r.PathPrefix("/static/").Handler(http.FileServer(http.Dir(dir)))
 	// r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(dir))))
 	r.HandleFunc("/die", killHandler)
-	r.HandleFunc("/api/v1/info", apiInfoHandler)
-	r.HandleFunc("/api/v2/{type}", apiResourceHandler)
-	r.HandleFunc("/api/v2/{type}/{id}", apiResourceHandler)
+	r.HandleFunc("/api/v1/info", api.IndexHandler)
+	r.HandleFunc("/api/v2/{type}", api.ApiResourceHandler)
+	r.HandleFunc("/api/v2/{type}/{id}", api.ApiResourceHandler)
 	// r.HandleFunc("/redis", redisHandler)
 	r.HandleFunc("/healthz", healthz)
-	r.HandleFunc("/workflow", workflowHandler)
-	r.HandleFunc("/", indexHandler)
+	r.HandleFunc("/workflow", workflow.WorkflowHandler)
+	r.HandleFunc("/", api.IndexHandler)
 	return r
+}
+
+func loggingMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Do stuff here
+		requestDump, err := httputil.DumpRequest(r, true)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Println(string(requestDump))
+		// Call the next handler, which can be another middleware in the chain, or the final handler.
+		next.ServeHTTP(w, r)
+	})
 }
 
 func main() {
@@ -209,6 +101,7 @@ func main() {
 	}
 
 	router := registerRoutes(dir)
+	router.Use(loggingMiddleware)
 
 	srv := &http.Server{
 		Handler: router,

@@ -6,7 +6,32 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"github.com/gorilla/mux"
 )
+
+type AppInfo struct {
+	Version string `json:"version"`
+	Name    string `json:"name"`
+	Color   string `json:"color"`
+	Info    string `json:"info"`
+}
+
+var Info AppInfo
+
+func init() {
+	Info.Version = getEnv("APP_VERSION", "v1.0.0")
+	Info.Name = getEnv("APP_NAME", "GO_WEB")
+	Info.Color = getEnv("APP_COLOR", "black")
+	Info.Info = getEnv("APP_INFO", "-")
+}
+
+func getEnv(key, fallback string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+	return fallback
+}
 
 func GetDebugData(req *http.Request) map[string]interface{} {
 	var hostname, err = os.Hostname()
@@ -32,6 +57,8 @@ func GetDebugData(req *http.Request) map[string]interface{} {
 		"ServerTime": time.Now().Format("2006-01-02 15:04:05"),
 		"Request":    map[string]interface{}{"Headers": req.Header},
 	}
+	data["info"] = Info.Info
+
 	if viewenv := req.URL.Query().Get("showenv"); viewenv != "" {
 		environment := getenvironment(os.Environ(), func(item string) (key, val string) {
 			splits := strings.Split(item, "=")
@@ -43,4 +70,16 @@ func GetDebugData(req *http.Request) map[string]interface{} {
 	}
 
 	return data
+}
+
+func IndexHandler(w http.ResponseWriter, r *http.Request) {
+	data := GetDebugData(r)
+	WriteResponse(w, r, data)
+}
+
+func ApiResourceHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	data := GetDebugData(r)
+	defer WriteResponse(w, r, data)
+	data["resource"] = vars
 }
